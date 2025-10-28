@@ -10,18 +10,28 @@ function App() {
     fetch(process.env.PUBLIC_URL + "/jobs.json")
       .then((res) => res.json())
       .then((data) => {
-        // Sort by newest first
-        const sorted = [...data].sort((a, b) => {
+        if (!Array.isArray(data)) {
+          console.error("Invalid jobs.json format");
+          return;
+        }
+
+        // Filter out any broken/null entries
+        const cleanData = data.filter(
+          (job) => job && typeof job === "object" && job.title
+        );
+
+        // Sort newest first
+        const sorted = [...cleanData].sort((a, b) => {
           const dateA = new Date(a.date_posted || "1970-01-01");
           const dateB = new Date(b.date_posted || "1970-01-01");
           return dateB - dateA;
         });
+
         setJobs(sorted);
       })
       .catch((err) => console.error("Error loading jobs.json", err));
   }, []);
 
-  // Filtering
   const filteredJobs = jobs.filter((job) => {
     const title = (job.title || "").toLowerCase();
     const org = (job.organization || "").toLowerCase();
@@ -108,7 +118,7 @@ function App() {
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
-                      {job.title || "N/A"}
+                      {job.title || "View Jobs"}
                     </a>
                   </td>
                   <td className="border border-gray-300 px-4 py-2">{job.organization || "N/A"}</td>
