@@ -7,42 +7,51 @@ function App() {
   const [filterLocation, setFilterLocation] = useState("All");
 
   useEffect(() => {
-    fetch(process.env.PUBLIC_URL + "/jobs.json")
-      .then((res) => res.json())
-      .then((data) => {
-        if (!Array.isArray(data)) {
-          console.error("Invalid jobs.json format");
-          return;
-        }
+    async function fetchJobs() {
+      try {
+        // Fetch your original jobs.json
+        const res1 = await fetch(process.env.PUBLIC_URL + "/jobs.json");
+        const jobs1 = await res1.json();
 
-        // Clean every job so no field is undefined
-        const clean = data.map((j) => ({
-          title: (j && j.title) ? String(j.title) : "View Jobs",
-          organization: (j && j.organization) ? String(j.organization) : "N/A",
-          location: (j && j.location) ? String(j.location) : "N/A",
-          type: (j && j.type) ? String(j.type) : "N/A",
-          date_posted: (j && j.date_posted && !isNaN(Date.parse(j.date_posted)))
-            ? new Date(j.date_posted).toISOString().split("T")[0]
-            : "1970-01-01",
-          link: (j && j.link) ? String(j.link) : "#",
+        // Fetch Talent Market jobs
+        const res2 = await fetch(process.env.PUBLIC_URL + "/jobs_talentmarket.json");
+        const jobs2 = await res2.json();
+
+        // Clean both sets
+        const clean = [...jobs1, ...jobs2].map((j) => ({
+          title: j?.title ? String(j.title) : "View Jobs",
+          organization: j?.organization ? String(j.organization) : "N/A",
+          location: j?.location ? String(j.location) : "N/A",
+          type: j?.type ? String(j.type) : "N/A",
+          date_posted:
+            j?.date_posted && !isNaN(Date.parse(j.date_posted))
+              ? new Date(j.date_posted).toISOString().split("T")[0]
+              : "1970-01-01",
+          link: j?.link ? String(j.link) : "#",
         }));
 
         // Sort newest first
         clean.sort((a, b) => new Date(b.date_posted) - new Date(a.date_posted));
 
         setJobs(clean);
-      })
-      .catch((err) => console.error("Error loading jobs.json", err));
+      } catch (err) {
+        console.error("Error loading jobs:", err);
+      }
+    }
+
+    fetchJobs();
   }, []);
 
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
     return (
-      job.title.toLowerCase().includes(searchText) ||
-      job.organization.toLowerCase().includes(searchText)
-    ) &&
-      (filterType === "All" || job.type.toLowerCase() === filterType.toLowerCase()) &&
-      (filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase()));
+      (job.title.toLowerCase().includes(searchText) ||
+        job.organization.toLowerCase().includes(searchText)) &&
+      (filterType === "All" ||
+        job.type.toLowerCase() === filterType.toLowerCase()) &&
+      (filterLocation === "All" ||
+        job.location.toLowerCase().includes(filterLocation.toLowerCase()))
+    );
   });
 
   return (
