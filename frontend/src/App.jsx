@@ -9,23 +9,24 @@ function App() {
   useEffect(() => {
     async function fetchJobs() {
       try {
-        // Fetch your original jobs.json
+        // Load both JSON sources
         const res1 = await fetch(process.env.PUBLIC_URL + "/jobs.json");
         const jobs1 = await res1.json();
 
-        // Fetch Talent Market jobs
         const res2 = await fetch(process.env.PUBLIC_URL + "/jobs_talentmarket.json");
         const jobs2 = await res2.json();
 
+        // Clean and normalize jobs
         const clean = [...jobs1, ...jobs2].map((j) => ({
-          title: j.title || "View Job",
-          organization: j.organization || "N/A",
-          location: j.location || "N/A",
-          type: j.type || "N/A",
-          date_posted: j.date_posted && !isNaN(Date.parse(j.date_posted))
-            ? new Date(j.date_posted).toISOString().split("T")[0]
-            : "1970-01-01",
-          link: j.link || "#",
+          title: j?.title ? String(j.title) : "View Job",
+          organization: j?.organization ? String(j.organization) : "N/A",
+          location: j?.location ? String(j.location) : "N/A",
+          type: j?.type ? String(j.type) : "N/A",
+          date_posted:
+            j?.date_posted && !isNaN(Date.parse(j.date_posted))
+              ? new Date(j.date_posted).toISOString().split("T")[0]
+              : "1970-01-01",
+          link: j?.link ? String(j.link) : "#",
         }));
 
         // Sort newest first
@@ -35,17 +36,18 @@ function App() {
         console.error("Error loading jobs:", err);
       }
     }
+
     fetchJobs();
   }, []);
 
   const filteredJobs = jobs.filter((job) => {
     const searchText = search.toLowerCase();
     return (
-      job.title.toLowerCase().includes(searchText) ||
-      job.organization.toLowerCase().includes(searchText)
-    ) &&
+      (job.title.toLowerCase().includes(searchText) ||
+        job.organization.toLowerCase().includes(searchText)) &&
       (filterType === "All" || job.type.toLowerCase() === filterType.toLowerCase()) &&
-      (filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase()));
+      (filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase()))
+    );
   });
 
   return (
@@ -132,3 +134,4 @@ function App() {
 }
 
 export default App;
+
