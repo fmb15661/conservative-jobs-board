@@ -9,29 +9,17 @@ function App() {
   useEffect(() => {
     async function fetchJobs() {
       try {
-        // Load both JSON sources
-        const res1 = await fetch(process.env.PUBLIC_URL + "/jobs.json");
-        const jobs1 = await res1.json();
-
-        const res2 = await fetch(process.env.PUBLIC_URL + "/jobs_talentmarket.json");
-        const jobs2 = await res2.json();
-
-        // Clean and normalize jobs
-        const clean = [...jobs1, ...jobs2].map((j) => ({
-          title: j?.title ? String(j.title) : "View Job",
-          organization: j?.organization ? String(j.organization) : "N/A",
-          location: j?.location ? String(j.location) : "N/A",
-          type: j?.type ? String(j.type) : "N/A",
-          date_posted:
-            j?.date_posted && !isNaN(Date.parse(j.date_posted))
-              ? new Date(j.date_posted).toISOString().split("T")[0]
-              : "1970-01-01",
-          link: j?.link ? String(j.link) : "#",
-        }));
+        const [res1, res2] = await Promise.all([
+          fetch("/jobs.json"),
+          fetch("/jobs_talentmarket.json")
+        ]);
+        const [jobs1, jobs2] = await Promise.all([res1.json(), res2.json()]);
+        const allJobs = [...jobs1, ...jobs2];
 
         // Sort newest first
-        clean.sort((a, b) => new Date(b.date_posted) - new Date(a.date_posted));
-        setJobs(clean);
+        allJobs.sort((a, b) => new Date(b.date_posted) - new Date(a.date_posted));
+
+        setJobs(allJobs);
       } catch (err) {
         console.error("Error loading jobs:", err);
       }
@@ -41,20 +29,20 @@ function App() {
   }, []);
 
   const filteredJobs = jobs.filter((job) => {
-    const searchText = search.toLowerCase();
+    const s = search.toLowerCase();
     return (
-      (job.title.toLowerCase().includes(searchText) ||
-        job.organization.toLowerCase().includes(searchText)) &&
-      (filterType === "All" || job.type.toLowerCase() === filterType.toLowerCase()) &&
-      (filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase()))
+      (job.title?.toLowerCase().includes(s) ||
+        job.organization?.toLowerCase().includes(s)) &&
+      (filterType === "All" ||
+        job.type?.toLowerCase() === filterType.toLowerCase()) &&
+      (filterLocation === "All" ||
+        job.location?.toLowerCase().includes(filterLocation.toLowerCase()))
     );
   });
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Conservative Jobs Board
-      </h1>
+      <h1 className="text-3xl font-bold mb-6 text-center">Conservative Jobs Board</h1>
 
       {/* Search & Filters */}
       <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
