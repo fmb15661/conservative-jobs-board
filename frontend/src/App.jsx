@@ -1,137 +1,61 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-function App() {
+export default function App() {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
-  const [filterType, setFilterType] = useState("All");
-  const [filterLocation, setFilterLocation] = useState("All");
 
   useEffect(() => {
-    async function loadJobs() {
-      try {
-        const r1 = await fetch("/jobs.json");
-        const j1 = await r1.json();
-        const r2 = await fetch("/jobs_talentmarket.json");
-        const j2 = await r2.json();
-
-        // combine
-        const combined = [...j1, ...j2];
-
-        // normalize each job
-        const clean = combined.map((j) => ({
-          title: j.title || "View Job",
-          organization: j.organization || "N/A",
-          location: (typeof j.location === "string") ? j.location : "N/A",
-          type: j.type || "N/A",
-          date_posted: j.date_posted && !isNaN(Date.parse(j.date_posted))
-            ? new Date(j.date_posted).toISOString().split("T")[0]
-            : "1970-01-01",
-          link: j.link || "#",
-        }));
-
-        // newest first
-        clean.sort((a, b) => new Date(b.date_posted) - new Date(a.date_posted));
-
-        setJobs(clean);
-
-      } catch (err) {
-        console.error("Error loading jobs:", err);
-      }
+    async function go() {
+      const r = await fetch("/jobs.json");
+      const data = await r.json();
+      setJobs(data);
     }
-    loadJobs();
+    go();
   }, []);
 
-  const filteredJobs = jobs.filter((job) => {
-    const s = search.toLowerCase();
-    return (
-      (job.title.toLowerCase().includes(s) ||
-        job.organization.toLowerCase().includes(s)) &&
-      (filterType === "All" || job.type.toLowerCase() === filterType.toLowerCase()) &&
-      (filterLocation === "All" || job.location.toLowerCase().includes(filterLocation.toLowerCase()))
-    );
-  });
+  const filtered = jobs.filter((j) =>
+    (j.title + j.organization + j.location)
+      .toLowerCase()
+      .includes(search.toLowerCase())
+  );
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Conservative Jobs Board
-      </h1>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Conservative Jobs Board</h1>
 
-      {/* Search & Filters */}
-      <div className="flex flex-col md:flex-row md:items-center md:space-x-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search job titles or organizations..."
-          className="flex-1 border rounded-lg p-2 mb-2 md:mb-0"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Search jobs..."
+        style={{
+          width: "100%",
+          padding: "10px",
+          marginBottom: "20px",
+          fontSize: "16px",
+        }}
+      />
 
-        <select
-          className="border rounded-lg p-2"
-          value={filterType}
-          onChange={(e) => setFilterType(e.target.value)}
+      {filtered.map((j, i) => (
+        <div
+          key={i}
+          style={{
+            border: "1px solid #ccc",
+            margin: "10px 0",
+            padding: "10px",
+          }}
         >
-          <option>All</option>
-          <option>Full-time</option>
-          <option>Part-time</option>
-          <option>Internship</option>
-          <option>Fellowship</option>
-        </select>
-
-        <input
-          type="text"
-          placeholder="Filter by location..."
-          className="border rounded-lg p-2"
-          value={filterLocation === "All" ? "" : filterLocation}
-          onChange={(e) => setFilterLocation(e.target.value || "All")}
-        />
-      </div>
-
-      {/* Jobs Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">Job Title</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Organization</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Location</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Date Posted</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredJobs.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="text-center p-4 text-gray-500">
-                  No jobs match your filters.
-                </td>
-              </tr>
-            ) : (
-              filteredJobs.map((job, idx) => (
-                <tr key={idx} className="hover:bg-gray-50">
-                  <td className="border border-gray-300 px-4 py-2">
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {job.title}
-                    </a>
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">{job.organization}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.location}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.type}</td>
-                  <td className="border border-gray-300 px-4 py-2">{job.date_posted}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+          <h3>{j.title}</h3>
+          <p>
+            <strong>{j.organization}</strong>
+          </p>
+          <p>{j.location}</p>
+          <p>{j.date_posted}</p>
+          <a href={j.link} target="_blank">
+            View Job
+          </a>
+        </div>
+      ))}
     </div>
   );
 }
 
-export default App;
