@@ -5,23 +5,28 @@ export default function App() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    async function load() {
-      const r = await fetch("/jobs.json");
-      const data = await r.json();
-      setJobs(data);
+    async function go() {
+      const r1 = await fetch("/jobs_talentmarket.json");
+      const tm = await r1.json();
+
+      const r2 = await fetch("/jobs_yaf.json");
+      const yaf = await r2.json();
+
+      // combine both sources
+      setJobs([...tm, ...yaf]);
     }
-    load();
+    go();
   }, []);
 
   const filtered = jobs.filter((j) =>
-    (j.title + " " + j.organization + " " + j.location)
+    (j.title + j.organization + j.location)
       .toLowerCase()
       .includes(search.toLowerCase())
   );
 
   return (
-    <div style={{ maxWidth: "900px", margin: "0 auto", padding: "20px", fontFamily: "Arial" }}>
-      <h1 style={{ textAlign: "center", marginBottom: "30px" }}>Conservative Jobs Board</h1>
+    <div style={{ padding: "20px", fontFamily: "Arial" }}>
+      <h1>Conservative Jobs Board</h1>
 
       <input
         value={search}
@@ -29,11 +34,9 @@ export default function App() {
         placeholder="Search jobs..."
         style={{
           width: "100%",
-          padding: "14px",
-          marginBottom: "30px",
-          fontSize: "18px",
-          borderRadius: "8px",
-          border: "1px solid #ccc",
+          padding: "10px",
+          marginBottom: "20px",
+          fontSize: "16px",
         }}
       />
 
@@ -41,18 +44,18 @@ export default function App() {
         <div
           key={i}
           style={{
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            padding: "16px",
-            marginBottom: "20px",
-            background: "#fff",
+            border: "1px solid #ccc",
+            margin: "10px 0",
+            padding: "10px",
           }}
         >
-          <h2 style={{ margin: "0 0 8px" }}>{j.title}</h2>
-          <p style={{ margin: "0 0 4px" }}><strong>{j.organization}</strong></p>
-          <p style={{ margin: "0 0 4px" }}>{j.location}</p>
-          <p style={{ margin: "0 0 8px", color: "#777" }}>{j.date_posted}</p>
-          <a href={j.link} target="_blank" style={{ color: "#0066CC" }}>
+          <h3>{j.title}</h3>
+          <p>
+            <strong>{j.organization}</strong>
+          </p>
+          <p>{j.location}</p>
+          <p>{j.date_posted}</p>
+          <a href={j.link} target="_blank">
             View Job
           </a>
         </div>
