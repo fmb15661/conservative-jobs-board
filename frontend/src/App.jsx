@@ -6,7 +6,7 @@ export default function App() {
 
   useEffect(() => {
     async function go() {
-      const r = await fetch("/jobs_talentmarket.json");
+      const r = await fetch("/jobs.json");
       const data = await r.json();
       setJobs(data);
     }
@@ -45,10 +45,12 @@ export default function App() {
           }}
         >
           <h3>{j.title}</h3>
-          <p><strong>{j.organization}</strong></p>
+          <p>
+            <strong>{j.organization}</strong>
+          </p>
           <p>{j.location}</p>
           <p>{j.date_posted}</p>
-          <a href={j.link} target="_blank" rel="noreferrer">
+          <a href={j.link} target="_blank">
             View Job
           </a>
         </div>
