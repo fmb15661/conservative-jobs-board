@@ -20,48 +20,49 @@ export default function App() {
   );
 
   return (
-    <div style={{ padding: "20px", fontFamily: "Arial" }}>
-      <h1>Conservative Jobs Board</h1>
+    <div className="bg-gray-100 min-h-screen p-6">
+      <div className="max-w-6xl mx-auto">
+        <h1 className="text-3xl font-bold text-center mb-6">
+          Conservative Jobs Board
+        </h1>
 
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search jobs..."
-        style={{
-          width: "100%",
-          padding: "10px",
-          marginBottom: "20px",
-          fontSize: "16px",
-        }}
-      />
+        <input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search jobs..."
+          className="w-full p-2 border border-gray-300 rounded-lg mb-6"
+        />
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-          gap: "15px",
-        }}
-      >
-        {filtered.map((j, i) => (
-          <div
-            key={i}
-            style={{
-              border: "1px solid #ccc",
-              padding: "10px",
-            }}
-          >
-            <h3>{j.title}</h3>
-            <p>
-              <strong>{j.organization}</strong>
-            </p>
-            <p>{j.location}</p>
-            <p>{j.date_posted}</p>
-            <a href={j.link} target="_blank">
-              View Job
-            </a>
-          </div>
-        ))}
+        <div className="overflow-x-auto">
+          <table className="table w-full border-collapse">
+            <thead>
+              <tr className="bg-white">
+                <th className="text-left p-2 border border-gray-300">Title</th>
+                <th className="text-left p-2 border border-gray-300">Organization</th>
+                <th className="text-left p-2 border border-gray-300">Location</th>
+                <th className="text-left p-2 border border-gray-300">Date Posted</th>
+                <th className="text-left p-2 border border-gray-300">Link</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((j, i) => (
+                <tr key={i} className="bg-white hover:bg-gray-50">
+                  <td className="p-2 border border-gray-300">{j.title}</td>
+                  <td className="p-2 border border-gray-300">{j.organization}</td>
+                  <td className="p-2 border border-gray-300">{j.location}</td>
+                  <td className="p-2 border border-gray-300">{j.date_posted}</td>
+                  <td className="p-2 border border-gray-300">
+                    <a className="text-blue-600 hover:underline" target="_blank" href={j.link}>
+                      View Job
+                    </a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
 }
+
