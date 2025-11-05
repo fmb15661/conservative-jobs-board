@@ -6,14 +6,9 @@ export default function App() {
 
   useEffect(() => {
     async function go() {
-      const r1 = await fetch("/jobs_talentmarket.json");
-      const tm = await r1.json();
-
-      const r2 = await fetch("/jobs_yaf.json");
-      const yaf = await r2.json();
-
-      // combine both sources
-      setJobs([...tm, ...yaf]);
+      const r = await fetch("/jobs.json");
+      const data = await r.json();
+      setJobs(data);
     }
     go();
   }, []);
@@ -40,27 +35,33 @@ export default function App() {
         }}
       />
 
-      {filtered.map((j, i) => (
-        <div
-          key={i}
-          style={{
-            border: "1px solid #ccc",
-            margin: "10px 0",
-            padding: "10px",
-          }}
-        >
-          <h3>{j.title}</h3>
-          <p>
-            <strong>{j.organization}</strong>
-          </p>
-          <p>{j.location}</p>
-          <p>{j.date_posted}</p>
-          <a href={j.link} target="_blank">
-            View Job
-          </a>
-        </div>
-      ))}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: "15px",
+        }}
+      >
+        {filtered.map((j, i) => (
+          <div
+            key={i}
+            style={{
+              border: "1px solid #ccc",
+              padding: "10px",
+            }}
+          >
+            <h3>{j.title}</h3>
+            <p>
+              <strong>{j.organization}</strong>
+            </p>
+            <p>{j.location}</p>
+            <p>{j.date_posted}</p>
+            <a href={j.link} target="_blank">
+              View Job
+            </a>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
-
