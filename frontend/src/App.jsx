@@ -1,47 +1,20 @@
 import { useEffect, useState } from "react";
 
-async function loadJSON(path) {
-  try {
-    const r = await fetch(path, { cache: "no-store" });
-    if (!r.ok) return [];
-    const data = await r.json();
-    return Array.isArray(data) ? data : [];
-  } catch {
-    return [];
-  }
-}
-
 export default function App() {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("Loading…");
 
   useEffect(() => {
-    (async () => {
-      // 1) try merged file
-      let merged = await loadJSON("/jobs.json");
-
-      // 2) if merged missing/empty, fall back to legacy files
-      if (!merged || merged.length === 0) {
-        const tm = await loadJSON("/jobs_talentmarket.json");
-        const yaf = await loadJSON("/jobs_yaf.json");
-        const byLink = new Set();
-        const combined = [...tm, ...yaf].filter(j => {
-          if (!j || !j.link) return false;
-          if (byLink.has(j.link)) return false;
-          byLink.add(j.link);
-          return true;
-        });
-        merged = combined;
-      }
-
-      setJobs(merged || []);
-      setStatus("");
-    })();
+    async function go() {
+      const r = await fetch("/jobs_talentmarket.json");
+      const data = await r.json();
+      setJobs(data);
+    }
+    go();
   }, []);
 
   const filtered = jobs.filter((j) =>
-    (j.title + " " + j.organization + " " + j.location)
+    (j.title + j.organization + j.location)
       .toLowerCase()
       .includes(search.toLowerCase())
   );
@@ -62,28 +35,19 @@ export default function App() {
         }}
       />
 
-      {status && <p>{status}</p>}
-      {!status && filtered.length === 0 && (
-        <p>No jobs found. Try another search.</p>
-      )}
-
       {filtered.map((j, i) => (
         <div
-          key={j.link || i}
+          key={i}
           style={{
             border: "1px solid #ccc",
             margin: "10px 0",
             padding: "10px",
           }}
         >
-          <h3 style={{ margin: "0 0 6px" }}>{j.title}</h3>
-          <p style={{ margin: "0 0 4px" }}>
-            <strong>{j.organization || "Unknown"}</strong>
-          </p>
-          <p style={{ margin: "0 0 4px" }}>{j.location || "N/A"}</p>
-          <p style={{ margin: "0 0 8px", color: "#666" }}>
-            {j.date_posted || "N/A"}
-          </p>
+          <h3>{j.title}</h3>
+          <p><strong>{j.organization}</strong></p>
+          <p>{j.location}</p>
+          <p>{j.date_posted}</p>
           <a href={j.link} target="_blank" rel="noreferrer">
             View Job
           </a>
