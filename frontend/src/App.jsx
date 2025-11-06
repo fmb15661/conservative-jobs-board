@@ -29,19 +29,77 @@ export default function App() {
     loadJobs();
   }, []);
 
+  // Enhanced normalization for YAF jobs
   function normalize(raw) {
+    const title =
+      raw.title ||
+      raw.position ||
+      raw.job_title ||
+      raw.name ||
+      raw.role ||
+      "Untitled";
+
+    const organization =
+      raw.organization ||
+      raw.org ||
+      raw.company ||
+      raw.employer ||
+      raw.employer_name ||
+      raw.institution ||
+      "Unknown";
+
+    const location =
+      raw.location ||
+      raw.job_location ||
+      raw.city ||
+      raw.jobCity ||
+      raw.jobLocation ||
+      raw["Job Location"] ||
+      (raw.meta && raw.meta.location) ||
+      "N/A";
+
+    const type =
+      raw.type ||
+      raw.category ||
+      raw.job_type ||
+      raw.role_type ||
+      raw.position_type ||
+      raw.employment_type ||
+      raw.categories ||
+      (Array.isArray(raw.tags) ? raw.tags.join(", ") : undefined) ||
+      (raw.meta && raw.meta.type) ||
+      "N/A";
+
+    const link =
+      raw.link ||
+      raw.url ||
+      raw.apply_url ||
+      raw.job_url ||
+      raw.href ||
+      (raw.meta && raw.meta.link) ||
+      "#";
+
+    // Date formats across YAF/TM variants
+    const rawDate =
+      raw.date_posted ||
+      raw.date ||
+      raw.posted ||
+      raw.posted_at ||
+      raw.post_date ||
+      raw.published ||
+      raw.publish_date ||
+      (raw.meta && raw.meta.date) ||
+      "";
+
+    const date_posted = cleanDate(rawDate);
+
     return {
-      title: raw.title || raw.position || "Untitled",
-      organization:
-        raw.organization || raw.org || raw.company || "Unknown",
-      location:
-        raw.location || raw.job_location || raw.city || "N/A",
-      type:
-        raw.type || raw.category || raw.job_type || raw.role_type || "N/A",
-      date_posted: cleanDate(
-        raw.date_posted || raw.date || raw.posted || ""
-      ),
-      link: raw.link || raw.url || "#",
+      title: String(title).trim(),
+      organization: String(organization).trim(),
+      location: String(location).trim(),
+      type: String(type).trim(),
+      date_posted,
+      link: String(link).trim(),
     };
   }
 
@@ -53,6 +111,12 @@ export default function App() {
     if (match) {
       const [_, m, day, y] = match;
       const parsed = new Date(`${m} ${day}, ${y}`);
+      if (!isNaN(parsed)) return parsed.toISOString();
+    }
+    const mdy = /(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(value);
+    if (mdy) {
+      const [_, mo, da, yr] = mdy;
+      const parsed = new Date(`${yr}-${mo}-${da}`);
       if (!isNaN(parsed)) return parsed.toISOString();
     }
     return value;
