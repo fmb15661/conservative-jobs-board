@@ -32,6 +32,16 @@ for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
         "link": href
     })
 
+# Map keywords to specific locations
+LOCATION_KEYWORDS = {
+    "Reston": "Reston, VA",
+    "Santa Barbara": "Santa Barbara, CA",
+    "Nashville": "Nashville, TN",
+    "Irving": "Irving, TX",
+    "Washington, DC": "Washington, DC",
+    "Capitol Hill": "Washington, DC"
+}
+
 for job in jobs:
     try:
         driver.get(job["link"])
@@ -41,20 +51,13 @@ for job in jobs:
         if "The page can’t be found" in text:
             continue
 
-        # Collapse whitespace
-        text = re.sub(r"\s+", " ", text)
+        # Determine location by known keywords
+        for key, city_state in LOCATION_KEYWORDS.items():
+            if key in text:
+                job["location"] = city_state
+                break
 
-        # Find all "City, ST" pairs and take the LAST one
-        matches = re.findall(r"[A-Z][a-zA-Z\s]+,\s?[A-Z]{2}", text)
-        if matches:
-            clean_loc = matches[-1].strip()
-            # Keep only the last two words to avoid "Commerce Park Drive ..."
-            parts = clean_loc.split()
-            if len(parts) > 2:
-                clean_loc = " ".join(parts[-2:])
-            job["location"] = clean_loc
-
-        # Detect job type if present
+        # Detect job type
         if "Full-Time" in text or "Full Time" in text:
             job["type"] = "Full-Time"
         elif "Part-Time" in text or "Part Time" in text:
