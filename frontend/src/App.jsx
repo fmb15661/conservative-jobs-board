@@ -6,6 +6,7 @@ export default function App() {
     key: "date_posted",
     direction: "desc",
   });
+  const [query, setQuery] = useState("");
 
   useEffect(() => {
     async function loadJobs() {
@@ -57,8 +58,19 @@ export default function App() {
     return value;
   }
 
+  const filtered = useMemo(() => {
+    if (!query) return jobs;
+    const q = query.toLowerCase();
+    return jobs.filter(
+      (j) =>
+        j.title.toLowerCase().includes(q) ||
+        j.organization.toLowerCase().includes(q) ||
+        j.location.toLowerCase().includes(q)
+    );
+  }, [jobs, query]);
+
   const sorted = useMemo(() => {
-    const arr = [...jobs];
+    const arr = [...filtered];
     const { key, direction } = sortConfig;
     const dir = direction === "asc" ? 1 : -1;
 
@@ -75,7 +87,7 @@ export default function App() {
       return dir * String(a[key] || "").localeCompare(String(b[key] || ""));
     });
     return arr;
-  }, [jobs, sortConfig]);
+  }, [filtered, sortConfig]);
 
   function toggleSort(key) {
     setSortConfig((prev) => {
@@ -99,6 +111,18 @@ export default function App() {
       <h1 className="text-2xl font-bold mb-4">
         Conservative Jobs Board
       </h1>
+
+      {/* Search bar */}
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Search jobs..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="w-full md:w-1/2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
+        />
+      </div>
+
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100">
@@ -133,39 +157,37 @@ export default function App() {
               >
                 Date Posted {arrow("date_posted")}
               </th>
-              <th className="px-3 py-2">Link</th>
             </tr>
           </thead>
           <tbody>
             {sorted.map((job, i) => (
               <tr key={i} className="border-b hover:bg-gray-50">
-                <td className="px-3 py-2 font-medium">{job.title}</td>
+                <td className="px-3 py-2 font-medium">
+                  {job.link && job.link !== "#" ? (
+                    <a
+                      href={job.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {job.title}
+                    </a>
+                  ) : (
+                    job.title
+                  )}
+                </td>
                 <td className="px-3 py-2">{job.organization}</td>
                 <td className="px-3 py-2">{job.location}</td>
                 <td className="px-3 py-2">{job.type}</td>
                 <td className="px-3 py-2">
                   {formatDate(job.date_posted)}
                 </td>
-                <td className="px-3 py-2">
-                  {job.link && job.link !== "#" ? (
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 underline"
-                    >
-                      Apply
-                    </a>
-                  ) : (
-                    "N/A"
-                  )}
-                </td>
               </tr>
             ))}
             {sorted.length === 0 && (
               <tr>
                 <td
-                  colSpan="6"
+                  colSpan="5"
                   className="text-center py-6 text-gray-500"
                 >
                   No jobs found.
@@ -175,6 +197,7 @@ export default function App() {
           </tbody>
         </table>
       </div>
+
       <p className="text-xs text-gray-500 mt-2">
         Click any column header to sort ↑↓
       </p>
