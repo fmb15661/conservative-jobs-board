@@ -32,35 +32,33 @@ for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
         "link": href
     })
 
-# Map keywords to specific locations
-LOCATION_KEYWORDS = {
-    "Reston": "Reston, VA",
-    "Santa Barbara": "Santa Barbara, CA",
-    "Nashville": "Nashville, TN",
-    "Irving": "Irving, TX",
-    "Washington, DC": "Washington, DC",
-    "Capitol Hill": "Washington, DC"
-}
-
 for job in jobs:
     try:
         driver.get(job["link"])
         time.sleep(2)
-        text = driver.find_element(By.TAG_NAME, "body").text
+        body_text = driver.find_element(By.TAG_NAME, "body").text
 
-        if "The page can’t be found" in text:
+        if "The page can’t be found" in body_text:
             continue
 
-        # Determine location by known keywords
-        for key, city_state in LOCATION_KEYWORDS.items():
-            if key in text:
-                job["location"] = city_state
+        # Split by newlines and clean
+        lines = [line.strip() for line in body_text.splitlines() if line.strip()]
+        location_found = None
+
+        # Find a line that looks like "City, ST"
+        for line in lines:
+            if re.match(r"^[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*,\s?[A-Z]{2}$", line):
+                location_found = line
                 break
 
-        # Detect job type
-        if "Full-Time" in text or "Full Time" in text:
+        if location_found:
+            job["location"] = location_found
+
+        # Detect type if mentioned
+        lower_text = body_text.lower()
+        if "full-time" in lower_text or "full time" in lower_text:
             job["type"] = "Full-Time"
-        elif "Part-Time" in text or "Part Time" in text:
+        elif "part-time" in lower_text or "part time" in lower_text:
             job["type"] = "Part-Time"
 
     except Exception as e:
