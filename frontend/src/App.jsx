@@ -41,21 +41,23 @@ export default function App() {
                 <th className="text-left p-2 border border-gray-300">Organization</th>
                 <th className="text-left p-2 border border-gray-300">Location</th>
                 <th className="text-left p-2 border border-gray-300">Date Posted</th>
-                <th className="text-left p-2 border border-gray-300">Link</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((j, i) => (
                 <tr key={i} className="bg-white hover:bg-gray-50">
-                  <td className="p-2 border border-gray-300">{j.title}</td>
+                  <td className="p-2 border border-gray-300">
+                    <a
+                      className="text-blue-600 hover:underline"
+                      href={j.link}
+                      target="_blank"
+                    >
+                      {j.title}
+                    </a>
+                  </td>
                   <td className="p-2 border border-gray-300">{j.organization}</td>
                   <td className="p-2 border border-gray-300">{j.location}</td>
                   <td className="p-2 border border-gray-300">{j.date_posted}</td>
-                  <td className="p-2 border border-gray-300">
-                    <a className="text-blue-600 hover:underline" target="_blank" href={j.link}>
-                      View Job
-                    </a>
-                  </td>
                 </tr>
               ))}
             </tbody>
@@ -65,4 +67,3 @@ export default function App() {
     </div>
   );
 }
-
