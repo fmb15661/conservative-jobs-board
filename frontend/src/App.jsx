@@ -39,6 +39,7 @@ export default function App() {
               <tr className="bg-white">
                 <th className="text-left p-2 border border-gray-300">Title</th>
                 <th className="text-left p-2 border border-gray-300">Organization</th>
+                <th className="text-left p-2 border border-gray-300">Job Type</th>
                 <th className="text-left p-2 border border-gray-300">Location</th>
                 <th className="text-left p-2 border border-gray-300">Date Posted</th>
               </tr>
@@ -47,15 +48,12 @@ export default function App() {
               {filtered.map((j, i) => (
                 <tr key={i} className="bg-white hover:bg-gray-50">
                   <td className="p-2 border border-gray-300">
-                    <a
-                      className="text-blue-600 hover:underline"
-                      href={j.link}
-                      target="_blank"
-                    >
+                    <a className="text-blue-600 hover:underline" target="_blank" href={j.link}>
                       {j.title}
                     </a>
                   </td>
                   <td className="p-2 border border-gray-300">{j.organization}</td>
+                  <td className="p-2 border border-gray-300">{j["Job Type"] || ""}</td>
                   <td className="p-2 border border-gray-300">{j.location}</td>
                   <td className="p-2 border border-gray-300">{j.date_posted}</td>
                 </tr>
