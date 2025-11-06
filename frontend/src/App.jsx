@@ -3,8 +3,8 @@ import React, { useState, useEffect, useMemo } from "react";
 export default function App() {
   const [jobs, setJobs] = useState([]);
   const [sortConfig, setSortConfig] = useState({
-    key: "date_posted",
-    direction: "desc",
+    key: "title",
+    direction: "asc",
   });
   const [query, setQuery] = useState("");
 
@@ -29,99 +29,38 @@ export default function App() {
     loadJobs();
   }, []);
 
-  // Enhanced normalization for YAF jobs
+  // Normalize job fields (handles both TM and YAF)
   function normalize(raw) {
-    const title =
-      raw.title ||
-      raw.position ||
-      raw.job_title ||
-      raw.name ||
-      raw.role ||
-      "Untitled";
-
-    const organization =
-      raw.organization ||
-      raw.org ||
-      raw.company ||
-      raw.employer ||
-      raw.employer_name ||
-      raw.institution ||
-      "Unknown";
-
-    const location =
-      raw.location ||
-      raw.job_location ||
-      raw.city ||
-      raw.jobCity ||
-      raw.jobLocation ||
-      raw["Job Location"] ||
-      (raw.meta && raw.meta.location) ||
-      "N/A";
-
-    const type =
-      raw.type ||
-      raw.category ||
-      raw.job_type ||
-      raw.role_type ||
-      raw.position_type ||
-      raw.employment_type ||
-      raw.categories ||
-      (Array.isArray(raw.tags) ? raw.tags.join(", ") : undefined) ||
-      (raw.meta && raw.meta.type) ||
-      "N/A";
-
-    const link =
-      raw.link ||
-      raw.url ||
-      raw.apply_url ||
-      raw.job_url ||
-      raw.href ||
-      (raw.meta && raw.meta.link) ||
-      "#";
-
-    // Date formats across YAF/TM variants
-    const rawDate =
-      raw.date_posted ||
-      raw.date ||
-      raw.posted ||
-      raw.posted_at ||
-      raw.post_date ||
-      raw.published ||
-      raw.publish_date ||
-      (raw.meta && raw.meta.date) ||
-      "";
-
-    const date_posted = cleanDate(rawDate);
-
     return {
-      title: String(title).trim(),
-      organization: String(organization).trim(),
-      location: String(location).trim(),
-      type: String(type).trim(),
-      date_posted,
-      link: String(link).trim(),
+      title: raw.title || raw.position || "Untitled",
+      organization:
+        raw.organization ||
+        raw.org ||
+        raw.company ||
+        raw.employer ||
+        "Unknown",
+      location:
+        raw.location ||
+        raw.job_location ||
+        raw.city ||
+        raw.jobCity ||
+        raw.jobLocation ||
+        raw["Job Location"] ||
+        "N/A",
+      type:
+        raw.type ||
+        raw.category ||
+        raw.job_type ||
+        raw.role_type ||
+        raw.position_type ||
+        raw.employment_type ||
+        raw.categories ||
+        "N/A",
+      link: raw.link || raw.url || "#",
     };
   }
 
-  function cleanDate(value) {
-    if (!value) return "N/A";
-    const d = new Date(value);
-    if (!isNaN(d)) return d.toISOString();
-    const match = /([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})/.exec(value);
-    if (match) {
-      const [_, m, day, y] = match;
-      const parsed = new Date(`${m} ${day}, ${y}`);
-      if (!isNaN(parsed)) return parsed.toISOString();
-    }
-    const mdy = /(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(value);
-    if (mdy) {
-      const [_, mo, da, yr] = mdy;
-      const parsed = new Date(`${yr}-${mo}-${da}`);
-      if (!isNaN(parsed)) return parsed.toISOString();
-    }
-    return value;
-  }
-
+  // Filter for search bar
   const filtered = useMemo(() => {
     if (!query) return jobs;
     const q = query.toLowerCase();
@@ -133,23 +72,14 @@ export default function App() {
     );
   }, [jobs, query]);
 
+  // Sorting (no date column now)
   const sorted = useMemo(() => {
     const arr = [...filtered];
     const { key, direction } = sortConfig;
     const dir = direction === "asc" ? 1 : -1;
-
-    arr.sort((a, b) => {
-      if (key === "date_posted") {
-        const ad = new Date(a.date_posted);
-        const bd = new Date(b.date_posted);
-        if (isNaN(ad) || isNaN(bd))
-          return String(a.date_posted).localeCompare(
-            String(b.date_posted)
-          );
-        return dir * (ad - bd);
-      }
-      return dir * String(a[key] || "").localeCompare(String(b[key] || ""));
-    });
+    arr.sort((a, b) =>
+      dir * String(a[key] || "").localeCompare(String(b[key] || ""))
+    );
     return arr;
   }, [filtered, sortConfig]);
 
@@ -161,7 +91,7 @@ export default function App() {
           direction: prev.direction === "asc" ? "desc" : "asc",
         };
       }
-      return { key, direction: key === "date_posted" ? "desc" : "asc" };
+      return { key, direction: "asc" };
     });
   }
 
@@ -215,12 +145,6 @@ export default function App() {
               >
                 Type {arrow("type")}
               </th>
-              <th
-                className="px-3 py-2 cursor-pointer"
-                onClick={() => toggleSort("date_posted")}
-              >
-                Date Posted {arrow("date_posted")}
-              </th>
             </tr>
           </thead>
           <tbody>
@@ -243,15 +167,12 @@ export default function App() {
                 <td className="px-3 py-2">{job.organization}</td>
                 <td className="px-3 py-2">{job.location}</td>
                 <td className="px-3 py-2">{job.type}</td>
-                <td className="px-3 py-2">
-                  {formatDate(job.date_posted)}
-                </td>
               </tr>
             ))}
             {sorted.length === 0 && (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="4"
                   className="text-center py-6 text-gray-500"
                 >
                   No jobs found.
@@ -267,16 +188,5 @@ export default function App() {
       </p>
     </div>
   );
-
-  function formatDate(value) {
-    if (!value || value === "N/A") return "N/A";
-    const d = new Date(value);
-    if (isNaN(d)) return value;
-    return d.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  }
 }
 
