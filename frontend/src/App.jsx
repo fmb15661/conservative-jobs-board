@@ -1,11 +1,8 @@
-import React, { useState, useEffect, useMemo } from "react";
+kimport React, { useState, useEffect, useMemo } from "react";
 
 export default function App() {
   const [jobs, setJobs] = useState([]);
-  const [sortConfig, setSortConfig] = useState({
-    key: "title",
-    direction: "asc",
-  });
+  const [sortConfig, setSortConfig] = useState({ key: "title", direction: "asc" });
   const [query, setQuery] = useState("");
 
   useEffect(() => {
@@ -19,15 +16,14 @@ export default function App() {
           if (!res.ok) continue;
           const data = await res.json();
           if (Array.isArray(data)) allJobs.push(...data);
-        } catch (err) {
-          console.error("Error loading", src, err);
+        } catch (e) {
+          console.error("Failed to load", src, e);
         }
       }
 
-      // Normalize and deduplicate
-      const normalized = allJobs.map((job) => normalize(job));
-      const unique = [];
+      const normalized = allJobs.map(normalize);
       const seen = new Set();
+      const unique = [];
 
       for (const job of normalized) {
         const key =
@@ -39,7 +35,6 @@ export default function App() {
           unique.push(job);
         }
       }
-
       setJobs(unique);
     }
 
@@ -100,10 +95,7 @@ export default function App() {
   function toggleSort(key) {
     setSortConfig((prev) => {
       if (prev.key === key) {
-        return {
-          key,
-          direction: prev.direction === "asc" ? "desc" : "asc",
-        };
+        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
       }
       return { key, direction: "asc" };
     });
@@ -116,10 +108,9 @@ export default function App() {
 
   return (
     <div className="p-6 font-sans text-gray-900">
-      <h1 className="text-2xl font-bold mb-4">
-        Conservative Jobs Board
-      </h1>
+      <h1 className="text-2xl font-bold mb-4">Conservative Jobs Board</h1>
 
+      {/* Search bar */}
       <div className="mb-4">
         <input
           type="text"
@@ -130,14 +121,12 @@ export default function App() {
         />
       </div>
 
+      {/* Jobs table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100">
             <tr>
-              <th
-                className="px-3 py-2 cursor-pointer"
-                onClick={() => toggleSort("title")}
-              >
+              <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort("title")}>
                 Title {arrow("title")}
               </th>
               <th
@@ -152,10 +141,7 @@ export default function App() {
               >
                 Location {arrow("location")}
               </th>
-              <th
-                className="px-3 py-2 cursor-pointer"
-                onClick={() => toggleSort("type")}
-              >
+              <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort("type")}>
                 Type {arrow("type")}
               </th>
             </tr>
@@ -176,4 +162,27 @@ export default function App() {
                   ) : (
                     job.title
                   )}
+                </td>
+                <td className="px-3 py-2">{job.organization}</td>
+                <td className="px-3 py-2">{job.location}</td>
+                <td className="px-3 py-2">{job.type}</td>
+              </tr>
+            ))}
+            {sorted.length === 0 && (
+              <tr>
+                <td colSpan="4" className="text-center py-6 text-gray-500">
+                  No jobs found.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <p className="text-xs text-gray-500 mt-2">
+        Click any column header to sort ↑↓
+      </p>
+    </div>
+  );
+}
 
