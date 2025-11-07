@@ -19,15 +19,16 @@ export default function App() {
           if (!res.ok) continue;
           const data = await res.json();
           if (Array.isArray(data)) allJobs.push(...data);
-        } catch {}
+        } catch (err) {
+          console.error("Error loading", src, err);
+        }
       }
 
-      // 🔹 Normalize fields
+      // Normalize and deduplicate
       const normalized = allJobs.map((job) => normalize(job));
-
-      // 🔹 Remove duplicates by link or title+org
       const unique = [];
       const seen = new Set();
+
       for (const job of normalized) {
         const key =
           (job.link && job.link !== "#"
@@ -75,7 +76,6 @@ export default function App() {
     };
   }
 
-  // 🔹 Filter (search bar)
   const filtered = useMemo(() => {
     if (!query) return jobs;
     const q = query.toLowerCase();
@@ -87,7 +87,6 @@ export default function App() {
     );
   }, [jobs, query]);
 
-  // 🔹 Sorting
   const sorted = useMemo(() => {
     const arr = [...filtered];
     const { key, direction } = sortConfig;
@@ -121,7 +120,6 @@ export default function App() {
         Conservative Jobs Board
       </h1>
 
-      {/* Search bar */}
       <div className="mb-4">
         <input
           type="text"
@@ -164,5 +162,18 @@ export default function App() {
           </thead>
           <tbody>
             {sorted.map((job, i) => (
-              <tr key={i} className="bord
+              <tr key={i} className="border-b hover:bg-gray-50">
+                <td className="px-3 py-2 font-medium">
+                  {job.link && job.link !== "#" ? (
+                    <a
+                      href={job.link}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {job.title}
+                    </a>
+                  ) : (
+                    job.title
+                  )}
 
