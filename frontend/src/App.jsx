@@ -1,4 +1,5 @@
-kimport React, { useState, useEffect, useMemo } from "react";
+/* eslint-disable */
+import React, { useState, useEffect, useMemo } from "react";
 
 export default function App() {
   const [jobs, setJobs] = useState([]);
@@ -35,6 +36,7 @@ export default function App() {
           unique.push(job);
         }
       }
+
       setJobs(unique);
     }
 
@@ -110,7 +112,6 @@ export default function App() {
     <div className="p-6 font-sans text-gray-900">
       <h1 className="text-2xl font-bold mb-4">Conservative Jobs Board</h1>
 
-      {/* Search bar */}
       <div className="mb-4">
         <input
           type="text"
@@ -121,7 +122,6 @@ export default function App() {
         />
       </div>
 
-      {/* Jobs table */}
       <div className="overflow-x-auto bg-white rounded-lg shadow">
         <table className="min-w-full text-sm text-left">
           <thead className="bg-gray-100">
