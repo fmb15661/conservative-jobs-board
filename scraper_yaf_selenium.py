@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import json, re, time
+import json, time
 
 BASE_URL = "https://yaf.org/careers/"
 
@@ -16,6 +16,7 @@ time.sleep(4)
 
 jobs, seen = [], set()
 
+# Collect job links
 for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
     href = a.get_attribute("href")
     if not href or "careers" not in href or href in seen:
@@ -32,33 +33,28 @@ for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
         "link": href
     })
 
+# Visit each job page
 for job in jobs:
     try:
         driver.get(job["link"])
         time.sleep(2)
-        body_text = driver.find_element(By.TAG_NAME, "body").text
+        body = driver.find_element(By.TAG_NAME, "body").text
+        lines = [line.strip() for line in body.splitlines() if line.strip()]
 
-        if "The page can’t be found" in body_text:
-            continue
-
-        # Split by newlines and clean
-        lines = [line.strip() for line in body_text.splitlines() if line.strip()]
-        location_found = None
-
-        # Find a line that looks like "City, ST"
-        for line in lines:
-            if re.match(r"^[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*,\s?[A-Z]{2}$", line):
-                location_found = line
+        # Find the title line and take the next one as location
+        for i, line in enumerate(lines):
+            if job["title"].lower() in line.lower():
+                if i + 1 < len(lines):
+                    loc_line = lines[i + 1]
+                    if "," in loc_line and len(loc_line.split(",")) == 2:
+                        job["location"] = loc_line.strip()
                 break
 
-        if location_found:
-            job["location"] = location_found
-
-        # Detect type if mentioned
-        lower_text = body_text.lower()
-        if "full-time" in lower_text or "full time" in lower_text:
+        # Detect job type if present
+        text_lower = body.lower()
+        if "full-time" in text_lower or "full time" in text_lower:
             job["type"] = "Full-Time"
-        elif "part-time" in lower_text or "part time" in lower_text:
+        elif "part-time" in text_lower or "part time" in text_lower:
             job["type"] = "Part-Time"
 
     except Exception as e:
