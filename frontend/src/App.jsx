@@ -22,14 +22,29 @@ export default function App() {
         } catch {}
       }
 
+      // 🔹 Normalize fields
       const normalized = allJobs.map((job) => normalize(job));
-      setJobs(normalized);
+
+      // 🔹 Remove duplicates by link or title+org
+      const unique = [];
+      const seen = new Set();
+      for (const job of normalized) {
+        const key =
+          (job.link && job.link !== "#"
+            ? job.link
+            : `${job.title}-${job.organization}`).toLowerCase();
+        if (!seen.has(key)) {
+          seen.add(key);
+          unique.push(job);
+        }
+      }
+
+      setJobs(unique);
     }
 
     loadJobs();
   }, []);
 
-  // Normalize job fields (handles both TM and YAF)
   function normalize(raw) {
     return {
       title: raw.title || raw.position || "Untitled",
@@ -60,7 +75,7 @@ export default function App() {
     };
   }
 
-  // Filter for search bar
+  // 🔹 Filter (search bar)
   const filtered = useMemo(() => {
     if (!query) return jobs;
     const q = query.toLowerCase();
@@ -72,7 +87,7 @@ export default function App() {
     );
   }, [jobs, query]);
 
-  // Sorting (no date column now)
+  // 🔹 Sorting
   const sorted = useMemo(() => {
     const arr = [...filtered];
     const { key, direction } = sortConfig;
@@ -149,44 +164,5 @@ export default function App() {
           </thead>
           <tbody>
             {sorted.map((job, i) => (
-              <tr key={i} className="border-b hover:bg-gray-50">
-                <td className="px-3 py-2 font-medium">
-                  {job.link && job.link !== "#" ? (
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {job.title}
-                    </a>
-                  ) : (
-                    job.title
-                  )}
-                </td>
-                <td className="px-3 py-2">{job.organization}</td>
-                <td className="px-3 py-2">{job.location}</td>
-                <td className="px-3 py-2">{job.type}</td>
-              </tr>
-            ))}
-            {sorted.length === 0 && (
-              <tr>
-                <td
-                  colSpan="4"
-                  className="text-center py-6 text-gray-500"
-                >
-                  No jobs found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      <p className="text-xs text-gray-500 mt-2">
-        Click any column header to sort ↑↓
-      </p>
-    </div>
-  );
-}
+              <tr key={i} className="bord
 
