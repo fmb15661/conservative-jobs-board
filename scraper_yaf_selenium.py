@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import json, time
+import json, time, re
 
 BASE_URL = "https://yaf.org/careers/"
 
@@ -16,7 +16,7 @@ time.sleep(4)
 
 jobs, seen = [], set()
 
-# Collect job links
+# Gather job links
 for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
     href = a.get_attribute("href")
     if not href or "careers" not in href or href in seen:
@@ -33,7 +33,7 @@ for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
         "link": href
     })
 
-# Visit each job page
+# Visit each page
 for job in jobs:
     try:
         driver.get(job["link"])
@@ -41,20 +41,22 @@ for job in jobs:
         body = driver.find_element(By.TAG_NAME, "body").text
         lines = [line.strip() for line in body.splitlines() if line.strip()]
 
-        # Find the title line and take the next one as location
+        # find job title and next line
         for i, line in enumerate(lines):
             if job["title"].lower() in line.lower():
                 if i + 1 < len(lines):
-                    loc_line = lines[i + 1]
-                    if "," in loc_line and len(loc_line.split(",")) == 2:
-                        job["location"] = loc_line.strip()
+                    next_line = lines[i + 1]
+                    # clean it up to just "City, ST"
+                    match = re.search(r"[A-Z][a-zA-Z\s]+,\s?[A-Z]{2}", next_line)
+                    if match:
+                        job["location"] = match.group(0).strip()
                 break
 
-        # Detect job type if present
-        text_lower = body.lower()
-        if "full-time" in text_lower or "full time" in text_lower:
+        # job type
+        lower_body = body.lower()
+        if "full-time" in lower_body or "full time" in lower_body:
             job["type"] = "Full-Time"
-        elif "part-time" in text_lower or "part time" in text_lower:
+        elif "part-time" in lower_body or "part time" in lower_body:
             job["type"] = "Part-Time"
 
     except Exception as e:
