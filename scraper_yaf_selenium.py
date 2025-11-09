@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import json, time, re
+import json, time
 
 BASE_URL = "https://yaf.org/careers/"
 
@@ -16,7 +16,7 @@ time.sleep(4)
 
 jobs, seen = [], set()
 
-# Gather job links
+# Collect job links
 for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
     href = a.get_attribute("href")
     if not href or "careers" not in href or href in seen:
@@ -33,30 +33,28 @@ for a in driver.find_elements(By.CSS_SELECTOR, "a[href*='/careers/']"):
         "link": href
     })
 
-# Visit each page
+# Visit each job page
 for job in jobs:
     try:
         driver.get(job["link"])
         time.sleep(2)
-        body = driver.find_element(By.TAG_NAME, "body").text
-        lines = [line.strip() for line in body.splitlines() if line.strip()]
+        lines = [line.strip() for line in driver.find_element(By.TAG_NAME, "body").text.splitlines() if line.strip()]
 
-        # find job title and next line
+        # the city/state is one line below the title
         for i, line in enumerate(lines):
             if job["title"].lower() in line.lower():
                 if i + 1 < len(lines):
-                    next_line = lines[i + 1]
-                    # clean it up to just "City, ST"
-                    match = re.search(r"[A-Z][a-zA-Z\s]+,\s?[A-Z]{2}", next_line)
-                    if match:
-                        job["location"] = match.group(0).strip()
+                    loc_line = lines[i + 1]
+                    # If the next line contains a comma and two-letter state code, use it
+                    if "," in loc_line and loc_line.strip().split()[-1].isupper():
+                        job["location"] = loc_line.strip()
                 break
 
-        # job type
-        lower_body = body.lower()
-        if "full-time" in lower_body or "full time" in lower_body:
+        # determine job type
+        text = " ".join(lines).lower()
+        if "full-time" in text or "full time" in text:
             job["type"] = "Full-Time"
-        elif "part-time" in lower_body or "part time" in lower_body:
+        elif "part-time" in text or "part time" in text:
             job["type"] = "Part-Time"
 
     except Exception as e:
