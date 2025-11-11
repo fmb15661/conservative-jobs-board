@@ -1,188 +1,100 @@
-// Force rebuild - YAF location fix
 /* eslint-disable */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 
 export default function App() {
   const [jobs, setJobs] = useState([]);
-  const [sortConfig, setSortConfig] = useState({ key: "title", direction: "asc" });
-  const [query, setQuery] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
+  // Load combined job files (cache-busted)
   useEffect(() => {
-    async function loadJobs() {
-      const sources = ["/jobs.json", "/jobs_yaf.json"];
-      const allJobs = [];
+    const sources = [
+      `/jobs.json?v=${Date.now()}`,
+      `/jobs_talentmarket.json?v=${Date.now()}`,
+      `/jobs_yaf.json?v=${Date.now()}`
+    ];
 
-      for (const src of sources) {
-        try {
-          const res = await fetch(src, { cache: "no-store" });
-          if (!res.ok) continue;
-          const data = await res.json();
-          if (Array.isArray(data)) allJobs.push(...data);
-        } catch (e) {
-          console.error("Failed to load", src, e);
-        }
-      }
-
-      const normalized = allJobs.map(normalize);
-      const seen = new Set();
-      const unique = [];
-
-      for (const job of normalized) {
-        const key =
-          (job.link && job.link !== "#"
-            ? job.link
-            : `${job.title}-${job.organization}`).toLowerCase();
-        if (!seen.has(key)) {
-          seen.add(key);
-          unique.push(job);
-        }
-      }
-
+    Promise.all(
+      sources.map(src =>
+        fetch(src)
+          .then(res => res.ok ? res.json() : [])
+          .catch(() => [])
+      )
+    ).then(data => {
+      const merged = data.flat();
+      // remove duplicates by link
+      const unique = Array.from(new Map(merged.map(j => [j.link, j])).values());
       setJobs(unique);
-    }
-
-    loadJobs();
+    });
   }, []);
 
-  function normalize(raw) {
-    return {
-      title: raw.title || raw.position || "Untitled",
-      organization:
-        raw.organization ||
-        raw.org ||
-        raw.company ||
-        raw.employer ||
-        "Unknown",
-      location:
-        raw.location ||
-        raw.job_location ||
-        raw.city ||
-        raw.jobCity ||
-        raw.jobLocation ||
-        raw["Job Location"] ||
-        "N/A",
-      type:
-        raw.type ||
-        raw.category ||
-        raw.job_type ||
-        raw.role_type ||
-        raw.position_type ||
-        raw.employment_type ||
-        raw.categories ||
-        "N/A",
-      link: raw.link || raw.url || "#",
-    };
-  }
+  // Sort handler
+  const handleSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") direction = "desc";
+    setSortConfig({ key, direction });
+  };
 
-  const filtered = useMemo(() => {
-    if (!query) return jobs;
-    const q = query.toLowerCase();
-    return jobs.filter(
-      (j) =>
-        j.title.toLowerCase().includes(q) ||
-        j.organization.toLowerCase().includes(q) ||
-        j.location.toLowerCase().includes(q)
-    );
-  }, [jobs, query]);
+  const sortedJobs = React.useMemo(() => {
+    let sortable = [...jobs];
+    if (sortConfig.key) {
+      sortable.sort((a, b) => {
+        const valA = a[sortConfig.key] || "";
+        const valB = b[sortConfig.key] || "";
+        if (sortConfig.key === "date_posted") {
+          return sortConfig.direction === "asc"
+            ? new Date(valA) - new Date(valB)
+            : new Date(valB) - new Date(valA);
+        }
+        return sortConfig.direction === "asc"
+          ? valA.localeCompare(valB)
+          : valB.localeCompare(valA);
+      });
+    }
+    return sortable;
+  }, [jobs, sortConfig]);
 
-  const sorted = useMemo(() => {
-    const arr = [...filtered];
-    const { key, direction } = sortConfig;
-    const dir = direction === "asc" ? 1 : -1;
-    arr.sort((a, b) =>
-      dir * String(a[key] || "").localeCompare(String(b[key] || ""))
-    );
-    return arr;
-  }, [filtered, sortConfig]);
-
-  function toggleSort(key) {
-    setSortConfig((prev) => {
-      if (prev.key === key) {
-        return { key, direction: prev.direction === "asc" ? "desc" : "asc" };
-      }
-      return { key, direction: "asc" };
-    });
-  }
-
-  function arrow(key) {
-    if (sortConfig.key !== key) return "↕";
-    return sortConfig.direction === "asc" ? "↑" : "↓";
-  }
+  const filteredJobs = sortedJobs.filter(
+    j =>
+      j.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      j.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      j.location.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="p-6 font-sans text-gray-900">
-      <h1 className="text-2xl font-bold mb-4">Conservative Jobs Board</h1>
-
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search jobs..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          className="w-full md:w-1/2 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring focus:border-blue-500"
-        />
-      </div>
-
-      <div className="overflow-x-auto bg-white rounded-lg shadow">
-        <table className="min-w-full text-sm text-left">
+    <div className="p-4 max-w-6xl mx-auto">
+      <h1 className="text-3xl font-bold mb-4 text-center">Conservative Jobs Board</h1>
+      <input
+        type="text"
+        placeholder="Search jobs..."
+        value={searchTerm}
+        onChange={e => setSearchTerm(e.target.value)}
+        className="border p-2 mb-4 w-full rounded"
+      />
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-300 rounded">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort("title")}>
-                Title {arrow("title")}
-              </th>
-              <th
-                className="px-3 py-2 cursor-pointer"
-                onClick={() => toggleSort("organization")}
-              >
-                Organization {arrow("organization")}
-              </th>
-              <th
-                className="px-3 py-2 cursor-pointer"
-                onClick={() => toggleSort("location")}
-              >
-                Location {arrow("location")}
-              </th>
-              <th className="px-3 py-2 cursor-pointer" onClick={() => toggleSort("type")}>
-                Type {arrow("type")}
-              </th>
+              <th className="p-2 cursor-pointer" onClick={() => handleSort("title")}>Title</th>
+              <th className="p-2 cursor-pointer" onClick={() => handleSort("organization")}>Organization</th>
+              <th className="p-2 cursor-pointer" onClick={() => handleSort("location")}>Location</th>
+              <th className="p-2 cursor-pointer" onClick={() => handleSort("type")}>Type</th>
             </tr>
           </thead>
           <tbody>
-            {sorted.map((job, i) => (
-              <tr key={i} className="border-b hover:bg-gray-50">
-                <td className="px-3 py-2 font-medium">
-                  {job.link && job.link !== "#" ? (
-                    <a
-                      href={job.link}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {job.title}
-                    </a>
-                  ) : (
-                    job.title
-                  )}
+            {filteredJobs.map((job, index) => (
+              <tr key={index} className="border-t hover:bg-gray-50">
+                <td className="p-2 text-blue-600 underline">
+                  <a href={job.link} target="_blank" rel="noopener noreferrer">{job.title}</a>
                 </td>
-                <td className="px-3 py-2">{job.organization}</td>
-                <td className="px-3 py-2">{job.location}</td>
-                <td className="px-3 py-2">{job.type}</td>
+                <td className="p-2">{job.organization || "N/A"}</td>
+                <td className="p-2">{job.location || "N/A"}</td>
+                <td className="p-2">{job.type || "N/A"}</td>
               </tr>
             ))}
-            {sorted.length === 0 && (
-              <tr>
-                <td colSpan="4" className="text-center py-6 text-gray-500">
-                  No jobs found.
-                </td>
-              </tr>
-            )}
           </tbody>
         </table>
       </div>
-
-      <p className="text-xs text-gray-500 mt-2">
-        Click any column header to sort ↑↓
-      </p>
     </div>
   );
 }
