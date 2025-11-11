@@ -1,7 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-import json, time
+import json, time, re
 
 BASE_URL = "https://yaf.org/careers/"
 
@@ -39,23 +39,31 @@ for job in jobs:
         driver.get(job["link"])
         time.sleep(2)
         lines = [line.strip() for line in driver.find_element(By.TAG_NAME, "body").text.splitlines() if line.strip()]
+        text = " ".join(lines).lower()
 
-        # the city/state is one line below the title
+        # --- detect location (look 1 or 2 lines below title) ---
         for i, line in enumerate(lines):
             if job["title"].lower() in line.lower():
-                if i + 1 < len(lines):
-                    loc_line = lines[i + 1]
-                    # If the next line contains a comma and two-letter state code, use it
-                    if "," in loc_line and loc_line.strip().split()[-1].isupper():
-                        job["location"] = loc_line.strip()
+                for offset in [1, 2]:
+                    if i + offset < len(lines):
+                        test_line = lines[i + offset]
+                        match = re.search(r"[A-Z][a-zA-Z\s]+,\s?(?:[A-Z]{2}|[A-Z][a-z]+)$", test_line)
+                        if match:
+                            job["location"] = match.group(0).strip()
+                            break
                 break
 
-        # determine job type
-        text = " ".join(lines).lower()
-        if "full-time" in text or "full time" in text:
+        # --- detect type (more robust) ---
+        if re.search(r"\bfull[-\s]?time\b", text):
             job["type"] = "Full-Time"
-        elif "part-time" in text or "part time" in text:
+        elif re.search(r"\bpart[-\s]?time\b", text):
             job["type"] = "Part-Time"
+        elif re.search(r"\bintern(ship)?\b", text):
+            job["type"] = "Internship"
+        elif re.search(r"\bcontract\b", text):
+            job["type"] = "Contract"
+        elif re.search(r"\btemporary\b", text):
+            job["type"] = "Temporary"
 
     except Exception as e:
         print(f"⚠️ {job['link']} -> {e}")
