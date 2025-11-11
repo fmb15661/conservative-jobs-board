@@ -6,7 +6,7 @@ export default function App() {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
-  // Load combined job files (cache-busted)
+  // Load latest job data (cache-busted)
   useEffect(() => {
     const sources = [
       `/jobs.json?v=${Date.now()}`,
@@ -17,7 +17,7 @@ export default function App() {
     Promise.all(
       sources.map(src =>
         fetch(src)
-          .then(res => res.ok ? res.json() : [])
+          .then(res => (res.ok ? res.json() : []))
           .catch(() => [])
       )
     ).then(data => {
@@ -28,7 +28,6 @@ export default function App() {
     });
   }, []);
 
-  // Sort handler
   const handleSort = (key) => {
     let direction = "asc";
     if (sortConfig.key === key && sortConfig.direction === "asc") direction = "desc";
@@ -39,13 +38,8 @@ export default function App() {
     let sortable = [...jobs];
     if (sortConfig.key) {
       sortable.sort((a, b) => {
-        const valA = a[sortConfig.key] || "";
-        const valB = b[sortConfig.key] || "";
-        if (sortConfig.key === "date_posted") {
-          return sortConfig.direction === "asc"
-            ? new Date(valA) - new Date(valB)
-            : new Date(valB) - new Date(valA);
-        }
+        const valA = a[sortConfig.key]?.toString().toLowerCase() || "";
+        const valB = b[sortConfig.key]?.toString().toLowerCase() || "";
         return sortConfig.direction === "asc"
           ? valA.localeCompare(valB)
           : valB.localeCompare(valA);
@@ -54,23 +48,25 @@ export default function App() {
     return sortable;
   }, [jobs, sortConfig]);
 
-  const filteredJobs = sortedJobs.filter(
-    j =>
-      j.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      j.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      j.location.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredJobs = sortedJobs.filter(j =>
+    [j.title, j.organization, j.location, j.type]
+      .join(" ")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="p-4 max-w-6xl mx-auto">
       <h1 className="text-3xl font-bold mb-4 text-center">Conservative Jobs Board</h1>
+
       <input
         type="text"
         placeholder="Search jobs..."
         value={searchTerm}
-        onChange={e => setSearchTerm(e.target.value)}
+        onChange={(e) => setSearchTerm(e.target.value)}
         className="border p-2 mb-4 w-full rounded"
       />
+
       <div className="overflow-x-auto">
         <table className="min-w-full border border-gray-300 rounded">
           <thead className="bg-gray-100">
@@ -82,14 +78,16 @@ export default function App() {
             </tr>
           </thead>
           <tbody>
-            {filteredJobs.map((job, index) => (
-              <tr key={index} className="border-t hover:bg-gray-50">
+            {filteredJobs.map((job, i) => (
+              <tr key={i} className="border-t hover:bg-gray-50">
                 <td className="p-2 text-blue-600 underline">
-                  <a href={job.link} target="_blank" rel="noopener noreferrer">{job.title}</a>
+                  <a href={job.link} target="_blank" rel="noopener noreferrer">
+                    {job.title || "N/A"}
+                  </a>
                 </td>
                 <td className="p-2">{job.organization || "N/A"}</td>
                 <td className="p-2">{job.location || "N/A"}</td>
-                <td className="p-2">{job.type || "N/A"}</td>
+                <td className="p-2">{job.type && job.type !== "" ? job.type : "N/A"}</td>
               </tr>
             ))}
           </tbody>
