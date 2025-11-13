@@ -1,72 +1,86 @@
 [
   {
-    "title": "Reston, Virginia",
+    "title": "Front Office Manager",
     "organization": "Young America's Foundation",
     "location": "Reston, Virginia",
-    "type": "Full-Time",
+    "type": "Policy",
+    "link": "https://yaf.org/careers/front-office-manager/"
+  },
+  {
+    "title": "Event Coordinator for the Reagan Ranch Center",
+    "organization": "Young America's Foundation",
+    "location": "Santa Barbara, CA",
+    "type": "Policy",
+    "link": "https://yaf.org/careers/event-coordinator-reagan-ranch/"
+  },
+  {
+    "title": "Program Officer for Outreach, National Journalism Center",
+    "organization": "Young America's Foundation",
+    "location": "Reston, Virginia",
+    "type": "Policy",
     "link": "https://yaf.org/careers/program-officer-njc/"
   },
   {
     "title": "Program Coordinator, National Journalism Center",
     "organization": "Young America's Foundation",
     "location": "Reston, Virginia",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/njc-program-coordinator/"
   },
   {
     "title": "Conservative School Outreach Coordinator",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/conservative-school-outreach-coordinator/"
   },
   {
     "title": "Media Coordinator",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/media-coordinator/"
   },
   {
     "title": "Development Assistant",
     "organization": "Young America's Foundation",
     "location": "Santa Barbara, CA",
-    "type": "Full-Time",
+    "type": "Policy",
     "link": "https://yaf.org/careers/development-assistant/"
   },
   {
     "title": "New Guard Investigative Reporter",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Full-Time",
+    "type": "Policy",
     "link": "https://yaf.org/careers/new-guard-investigative-reporter/"
   },
   {
     "title": "Development Officer",
     "organization": "Young America's Foundation",
     "location": "Santa Barbara, CA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/development-officer-reagan-ranch-center/"
   },
   {
     "title": "Development Officer",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/development-officer-headquarters/"
   },
   {
     "title": "Campus Recruitment",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/campus-recruitment/"
   },
   {
-    "title": "Opening:",
+    "title": "Program Officer for Marketing",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
-    "type": "Internship",
+    "type": "Policy",
     "link": "https://yaf.org/careers/program-officer-for-marketing/"
   }
 ]
