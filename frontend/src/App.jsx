@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [jobs, setJobs] = useState([]);
+  const [search, setSearch] = useState("");
 
   useEffect(() => {
     async function loadJobs() {
       const files = [
         "/jobs.json",
-        "/jobs_yaf.json",
         "/jobs_talentmarket.json",
+        "/jobs_yaf.json",
         "/jobs_afpi.json",
         "/jobs_cei.json",
         "/jobs_claremont.json",
@@ -24,17 +25,10 @@ function App() {
           if (!res.ok) continue;
           const data = await res.json();
           allJobs = allJobs.concat(data);
-        } catch (e) {
-          console.error("Error loading", file, e);
+        } catch (err) {
+          console.error("Error loading", file, err);
         }
       }
-
-      // Sort with newest first IF date exists, otherwise push to bottom
-      allJobs.sort((a, b) => {
-        const da = new Date(a.date_posted || "2000-01-01");
-        const db = new Date(b.date_posted || "2000-01-01");
-        return db - da;
-      });
 
       setJobs(allJobs);
     }
@@ -42,12 +36,26 @@ function App() {
     loadJobs();
   }, []);
 
+  const filteredJobs = jobs.filter((job) => {
+    const text = `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
+    return text.includes(search.toLowerCase());
+  });
+
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
 
+      {/* Search Bar RESTORED */}
+      <input
+        type="text"
+        placeholder="Search jobs..."
+        className="border p-2 mb-4 w-full rounded"
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+      />
+
       <div className="grid grid-cols-1 gap-4">
-        {jobs.map((job, index) => (
+        {filteredJobs.map((job, index) => (
           <a
             key={index}
             href={job.link}
@@ -55,13 +63,19 @@ function App() {
             rel="noopener noreferrer"
             className="border p-4 rounded shadow hover:bg-gray-100"
           >
-            <h2 className="text-xl font-bold">{job.title}</h2>
-            <p className="text-gray-700">{job.organization}</p>
+            <h2 className="text-xl font-bold text-blue-700 underline">
+              {job.title}
+            </h2>
+
+            <p className="text-gray-700 font-semibold">
+              {job.organization}
+            </p>
+
             <p className="text-gray-700">{job.location || "N/A"}</p>
-            <p className="text-gray-700">{job.type || "N/A"}</p>
-            {job.date_posted && (
-              <p className="text-gray-500 text-sm">{job.date_posted}</p>
-            )}
+
+            <p className="text-gray-700">
+              {job.type || "N/A"}
+            </p>
           </a>
         ))}
       </div>
