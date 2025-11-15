@@ -45,7 +45,6 @@ function App() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
 
-      {/* Search Bar */}
       <input
         type="text"
         placeholder="Search jobs..."
@@ -54,30 +53,42 @@ function App() {
         onChange={(e) => setSearch(e.target.value)}
       />
 
-      <div className="grid grid-cols-1 gap-4">
-        {filteredJobs.map((job, index) => (
-          <a
-            key={index}
-            href={job.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="border p-4 rounded shadow hover:bg-gray-100"
-          >
-            <h2 className="text-xl font-bold text-blue-700 underline">
-              {job.title}
-            </h2>
-
-            <p className="text-gray-700 font-semibold">
-              {job.organization}
-            </p>
-
-            <p className="text-gray-700">{job.location || "N/A"}</p>
-
-            <p className="text-gray-700 font-semibold">
-              {job.type || "N/A"}
-            </p>
-          </a>
-        ))}
+      <div className="overflow-x-auto">
+        <table className="min-w-full border-collapse">
+          <thead>
+            <tr>
+              <th className="border-b px-4 py-2 text-left">Title</th>
+              <th className="border-b px-4 py-2 text-left">Organization</th>
+              <th className="border-b px-4 py-2 text-left">Location</th>
+              <th className="border-b px-4 py-2 text-left">Type</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredJobs.map((job, index) => (
+              <tr key={index} className="hover:bg-gray-100">
+                <td className="border-b px-4 py-2">
+                  <a
+                    href={job.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-700 underline font-semibold"
+                  >
+                    {job.title}
+                  </a>
+                </td>
+                <td className="border-b px-4 py-2">
+                  {job.organization || "N/A"}
+                </td>
+                <td className="border-b px-4 py-2">
+                  {job.location || "N/A"}
+                </td>
+                <td className="border-b px-4 py-2">
+                  {job.type || "N/A"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
