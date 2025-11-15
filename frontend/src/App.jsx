@@ -2,14 +2,12 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [jobs, setJobs] = useState([]);
-  const [search, setSearch] = useState("");
   const [sortField, setSortField] = useState(null);
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortOrder, setSortOrder] = useState("asc");
 
   useEffect(() => {
     async function loadJobs() {
       const files = [
-        "/jobs.json",
         "/jobs_talentmarket.json",
         "/jobs_yaf.json",
         "/jobs_afpi.json",
@@ -38,100 +36,66 @@ function App() {
     loadJobs();
   }, []);
 
-  // FILTER
-  const filtered = jobs.filter((job) => {
-    const text = `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
-    return text.includes(search.toLowerCase());
-  });
+  function sortBy(field) {
+    const newOrder = sortField === field && sortOrder === "asc" ? "desc" : "asc";
+    setSortField(field);
+    setSortOrder(newOrder);
 
-  // SORT (BUT DO NOT OVERWRITE THE ORIGINAL JOB LIST)
-  let displayedJobs = [...filtered];
+    const sorted = [...jobs].sort((a, b) => {
+      const x = (a[field] || "").toString().toLowerCase();
+      const y = (b[field] || "").toString().toLowerCase();
 
-  if (sortField) {
-    displayedJobs.sort((a, b) => {
-      const aVal = (a[sortField] || "").toString().toLowerCase();
-      const bVal = (b[sortField] || "").toString().toLowerCase();
-
-      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+      if (x < y) return newOrder === "asc" ? -1 : 1;
+      if (x > y) return newOrder === "asc" ? 1 : -1;
       return 0;
     });
+
+    setJobs(sorted);
   }
-
-  const toggleSort = (field) => {
-    if (sortField === field) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortField(field);
-      setSortDirection("asc");
-    }
-  };
-
-  const arrow = (field) => {
-    if (sortField !== field) return "";
-    return sortDirection === "asc" ? " ↑" : " ↓";
-  };
 
   return (
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
 
-      <input
-        type="text"
-        placeholder="Search jobs..."
-        className="border p-2 mb-4 w-full rounded"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-      />
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-200">
+            <th className="p-2 cursor-pointer" onClick={() => sortBy("title")}>
+              Job Title
+            </th>
+            <th className="p-2 cursor-pointer" onClick={() => sortBy("organization")}>
+              Organization
+            </th>
+            <th className="p-2 cursor-pointer" onClick={() => sortBy("location")}>
+              Location
+            </th>
+            <th className="p-2 cursor-pointer" onClick={() => sortBy("type")}>
+              Type
+            </th>
+          </tr>
+        </thead>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr>
-              <th className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => toggleSort("title")}
-              >
-                Title {arrow("title")}
-              </th>
-              <th className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => toggleSort("organization")}
-              >
-                Organization {arrow("organization")}
-              </th>
-              <th className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => toggleSort("location")}
-              >
-                Location {arrow("location")}
-              </th>
-              <th className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => toggleSort("type")}
-              >
-                Type {arrow("type")}
-              </th>
+        <tbody>
+          {jobs.map((job, index) => (
+            <tr key={index} className="border-b hover:bg-gray-100">
+              <td className="p-2">
+                <a
+                  href={job.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-700 underline"
+                >
+                  {job.title}
+                </a>
+              </td>
+
+              <td className="p-2">{job.organization}</td>
+              <td className="p-2">{job.location || "N/A"}</td>
+              <td className="p-2">{job.type || "N/A"}</td>
             </tr>
-          </thead>
-
-          <tbody>
-            {displayedJobs.map((job, index) => (
-              <tr key={index} className="hover:bg-gray-100">
-                <td className="border-b px-4 py-2">
-                  <a
-                    href={job.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-700 underline font-semibold"
-                  >
-                    {job.title}
-                  </a>
-                </td>
-                <td className="border-b px-4 py-2">{job.organization || "N/A"}</td>
-                <td className="border-b px-4 py-2">{job.location || "N/A"}</td>
-                <td className="border-b px-4 py-2">{job.type || "N/A"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
