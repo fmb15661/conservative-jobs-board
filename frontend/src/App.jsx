@@ -38,43 +38,39 @@ function App() {
     loadJobs();
   }, []);
 
-  // SEARCH
-  const filteredJobs = jobs.filter((job) => {
+  // FILTER
+  const filtered = jobs.filter((job) => {
     const text = `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
     return text.includes(search.toLowerCase());
   });
 
-  // SORTING
-  const sortJobs = (field) => {
-    let newDirection = sortDirection;
+  // SORT (BUT DO NOT OVERWRITE THE ORIGINAL JOB LIST)
+  let displayedJobs = [...filtered];
 
-    if (sortField === field) {
-      newDirection = sortDirection === "asc" ? "desc" : "asc";
-      setSortDirection(newDirection);
-    } else {
-      setSortField(field);
-      newDirection = "asc";
-      setSortDirection("asc");
-    }
+  if (sortField) {
+    displayedJobs.sort((a, b) => {
+      const aVal = (a[sortField] || "").toString().toLowerCase();
+      const bVal = (b[sortField] || "").toString().toLowerCase();
 
-    const sorted = [...filteredJobs].sort((a, b) => {
-      const aVal = (a[field] || "").toString().toLowerCase();
-      const bVal = (b[field] || "").toString().toLowerCase();
-
-      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
+  }
 
-    setJobs(sorted);
+  const toggleSort = (field) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
   };
 
   const arrow = (field) => {
     if (sortField !== field) return "";
     return sortDirection === "asc" ? " ↑" : " ↓";
   };
-
-  const displayedJobs = sortField ? jobs : filteredJobs;
 
   return (
     <div className="p-6">
@@ -92,30 +88,23 @@ function App() {
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th
-                className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => sortJobs("title")}
+              <th className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => toggleSort("title")}
               >
                 Title {arrow("title")}
               </th>
-
-              <th
-                className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => sortJobs("organization")}
+              <th className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => toggleSort("organization")}
               >
                 Organization {arrow("organization")}
               </th>
-
-              <th
-                className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => sortJobs("location")}
+              <th className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => toggleSort("location")}
               >
                 Location {arrow("location")}
               </th>
-
-              <th
-                className="border-b px-4 py-2 text-left cursor-pointer"
-                onClick={() => sortJobs("type")}
+              <th className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => toggleSort("type")}
               >
                 Type {arrow("type")}
               </th>
@@ -135,18 +124,9 @@ function App() {
                     {job.title}
                   </a>
                 </td>
-
-                <td className="border-b px-4 py-2">
-                  {job.organization || "N/A"}
-                </td>
-
-                <td className="border-b px-4 py-2">
-                  {job.location || "N/A"}
-                </td>
-
-                <td className="border-b px-4 py-2">
-                  {job.type || "N/A"}
-                </td>
+                <td className="border-b px-4 py-2">{job.organization || "N/A"}</td>
+                <td className="border-b px-4 py-2">{job.location || "N/A"}</td>
+                <td className="border-b px-4 py-2">{job.type || "N/A"}</td>
               </tr>
             ))}
           </tbody>
