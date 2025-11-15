@@ -3,6 +3,8 @@ import React, { useEffect, useState } from "react";
 function App() {
   const [jobs, setJobs] = useState([]);
   const [search, setSearch] = useState("");
+  const [sortField, setSortField] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
 
   useEffect(() => {
     async function loadJobs() {
@@ -36,10 +38,43 @@ function App() {
     loadJobs();
   }, []);
 
+  // SEARCH
   const filteredJobs = jobs.filter((job) => {
     const text = `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
     return text.includes(search.toLowerCase());
   });
+
+  // SORTING
+  const sortJobs = (field) => {
+    let newDirection = sortDirection;
+
+    if (sortField === field) {
+      newDirection = sortDirection === "asc" ? "desc" : "asc";
+      setSortDirection(newDirection);
+    } else {
+      setSortField(field);
+      newDirection = "asc";
+      setSortDirection("asc");
+    }
+
+    const sorted = [...filteredJobs].sort((a, b) => {
+      const aVal = (a[field] || "").toString().toLowerCase();
+      const bVal = (b[field] || "").toString().toLowerCase();
+
+      if (aVal < bVal) return newDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return newDirection === "asc" ? 1 : -1;
+      return 0;
+    });
+
+    setJobs(sorted);
+  };
+
+  const arrow = (field) => {
+    if (sortField !== field) return "";
+    return sortDirection === "asc" ? " ↑" : " ↓";
+  };
+
+  const displayedJobs = sortField ? jobs : filteredJobs;
 
   return (
     <div className="p-6">
@@ -57,14 +92,38 @@ function App() {
         <table className="min-w-full border-collapse">
           <thead>
             <tr>
-              <th className="border-b px-4 py-2 text-left">Title</th>
-              <th className="border-b px-4 py-2 text-left">Organization</th>
-              <th className="border-b px-4 py-2 text-left">Location</th>
-              <th className="border-b px-4 py-2 text-left">Type</th>
+              <th
+                className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => sortJobs("title")}
+              >
+                Title {arrow("title")}
+              </th>
+
+              <th
+                className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => sortJobs("organization")}
+              >
+                Organization {arrow("organization")}
+              </th>
+
+              <th
+                className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => sortJobs("location")}
+              >
+                Location {arrow("location")}
+              </th>
+
+              <th
+                className="border-b px-4 py-2 text-left cursor-pointer"
+                onClick={() => sortJobs("type")}
+              >
+                Type {arrow("type")}
+              </th>
             </tr>
           </thead>
+
           <tbody>
-            {filteredJobs.map((job, index) => (
+            {displayedJobs.map((job, index) => (
               <tr key={index} className="hover:bg-gray-100">
                 <td className="border-b px-4 py-2">
                   <a
@@ -76,12 +135,15 @@ function App() {
                     {job.title}
                   </a>
                 </td>
+
                 <td className="border-b px-4 py-2">
                   {job.organization || "N/A"}
                 </td>
+
                 <td className="border-b px-4 py-2">
                   {job.location || "N/A"}
                 </td>
+
                 <td className="border-b px-4 py-2">
                   {job.type || "N/A"}
                 </td>
