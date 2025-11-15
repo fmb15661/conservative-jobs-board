@@ -37,7 +37,8 @@ function App() {
   }, []);
 
   const filteredJobs = jobs.filter((job) => {
-    const text = `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
+    const text =
+      `${job.title} ${job.organization} ${job.location} ${job.type}`.toLowerCase();
     return text.includes(search.toLowerCase());
   });
 
@@ -45,7 +46,6 @@ function App() {
     <div className="p-6">
       <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
 
-      {/* Search Bar RESTORED */}
       <input
         type="text"
         placeholder="Search jobs..."
@@ -71,7 +71,9 @@ function App() {
               {job.organization}
             </p>
 
-            <p className="text-gray-700">{job.location || "N/A"}</p>
+            <p className="text-gray-700">
+              {job.location || "N/A"}
+            </p>
 
             <p className="text-gray-700">
               {job.type || "N/A"}
