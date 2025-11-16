@@ -14,6 +14,7 @@ function App() {
     "/jobs_hudson.json",
     "/jobs_cato.json",
     "/jobs_plf.json"
+    "/jobs_heritage.json",
   ];
 
   useEffect(() => {
