@@ -2,96 +2,121 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [jobs, setJobs] = useState([]);
-  const [sortField, setSortField] = useState(null);
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [sortColumn, setSortColumn] = useState(null);
+  const [sortDirection, setSortDirection] = useState("asc");
+
+  // List of job JSON sources (PLF added at the bottom)
+  const sources = [
+    "/jobs.json",
+    "/jobs_tm.json",
+    "/jobs_yaf.json",
+    "/jobs_afpi.json",
+    "/jobs_hudson.json",
+    "/jobs_cato.json",
+    "/jobs_plf.json"   // ⬅️ Added PLF here, last in list
+  ];
 
   useEffect(() => {
     async function loadJobs() {
-      const files = [
-        "/jobs_talentmarket.json",
-        "/jobs_yaf.json",
-        "/jobs_afpi.json",
-        "/jobs_cei.json",
-        "/jobs_claremont.json",
-        "/jobs_leadership_institute.json",
-        "/jobs_tppf.json"
-      ];
+      let all = [];
 
-      let allJobs = [];
-
-      for (const file of files) {
+      for (const src of sources) {
         try {
-          const res = await fetch(file);
-          if (!res.ok) continue;
-          const data = await res.json();
-          allJobs = allJobs.concat(data);
-        } catch (err) {
-          console.error("Error loading", file, err);
+          const response = await fetch(src);
+          if (response.ok) {
+            const data = await response.json();
+            all = [...all, ...data];
+          }
+        } catch (e) {
+          console.log("Failed to load:", src);
         }
       }
 
-      setJobs(allJobs);
+      setJobs(all);
     }
 
     loadJobs();
   }, []);
 
-  function sortBy(field) {
-    const newOrder = sortField === field && sortOrder === "asc" ? "desc" : "asc";
-    setSortField(field);
-    setSortOrder(newOrder);
+  const sortTable = (column) => {
+    let direction = sortDirection;
+
+    if (sortColumn === column) {
+      direction = direction === "asc" ? "desc" : "asc";
+    } else {
+      direction = "asc";
+    }
 
     const sorted = [...jobs].sort((a, b) => {
-      const x = (a[field] || "").toString().toLowerCase();
-      const y = (b[field] || "").toString().toLowerCase();
+      const x = a[column] ? a[column].toString().toLowerCase() : "";
+      const y = b[column] ? b[column].toString().toLowerCase() : "";
 
-      if (x < y) return newOrder === "asc" ? -1 : 1;
-      if (x > y) return newOrder === "asc" ? 1 : -1;
+      if (x < y) return direction === "asc" ? -1 : 1;
+      if (x > y) return direction === "asc" ? 1 : -1;
       return 0;
     });
 
+    setSortColumn(column);
+    setSortDirection(direction);
     setJobs(sorted);
-  }
+  };
 
   return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        Conservative Jobs Board
+      </h1>
 
-      <table className="w-full border-collapse">
+      <table className="min-w-full border border-gray-400">
         <thead>
           <tr className="bg-gray-200">
-            <th className="p-2 cursor-pointer" onClick={() => sortBy("title")}>
+            <th
+              className="p-2 border cursor-pointer"
+              onClick={() => sortTable("title")}
+            >
               Job Title
             </th>
-            <th className="p-2 cursor-pointer" onClick={() => sortBy("organization")}>
+            <th
+              className="p-2 border cursor-pointer"
+              onClick={() => sortTable("organization")}
+            >
               Organization
             </th>
-            <th className="p-2 cursor-pointer" onClick={() => sortBy("location")}>
+            <th
+              className="p-2 border cursor-pointer"
+              onClick={() => sortTable("location")}
+            >
               Location
             </th>
-            <th className="p-2 cursor-pointer" onClick={() => sortBy("type")}>
+            <th
+              className="p-2 border cursor-pointer"
+              onClick={() => sortTable("type")}
+            >
               Type
             </th>
+            <th
+              className="p-2 border cursor-pointer"
+              onClick={() => sortTable("date_posted")}
+            >
+              Date Posted
+            </th>
+            <th className="p-2 border">Link</th>
           </tr>
         </thead>
 
         <tbody>
           {jobs.map((job, index) => (
-            <tr key={index} className="border-b hover:bg-gray-100">
-              <td className="p-2">
-                <a
-                  href={job.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-700 underline"
-                >
-                  {job.title}
+            <tr key={index} className="border">
+              <td className="p-2 border">{job.title}</td>
+              <td className="p-2 border">{job.organization}</td>
+              <td className="p-2 border">{job.location}</td>
+              <td className="p-2 border">{job.type}</td>
+              <td className="p-2 border">{job.date_posted}</td>
+              <td className="p-2 border text-blue-600 underline">
+                <a href={job.link} target="_blank" rel="noopener noreferrer">
+                  Apply
                 </a>
               </td>
-
-              <td className="p-2">{job.organization}</td>
-              <td className="p-2">{job.location || "N/A"}</td>
-              <td className="p-2">{job.type || "N/A"}</td>
             </tr>
           ))}
         </tbody>
