@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // List of job JSON sources (PLF last)
+  // List of job JSON sources (Heritage added)
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -13,7 +13,7 @@ function App() {
     "/jobs_afpi.json",
     "/jobs_hudson.json",
     "/jobs_cato.json",
-    "/jobs_plf.json"
+    "/jobs_plf.json",
     "/jobs_heritage.json",
   ];
 
@@ -65,6 +65,7 @@ function App() {
   return (
     <div className="App">
       <h1>Conservative Jobs Board</h1>
+
       <table>
         <thead>
           <tr>
@@ -75,7 +76,6 @@ function App() {
             <th>Link</th>
           </tr>
         </thead>
-
         <tbody>
           {jobs.map((job, index) => (
             <tr key={index}>
