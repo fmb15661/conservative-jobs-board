@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // List of job JSON sources (PLF added at the bottom)
+  // List of job JSON sources (PLF last)
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -13,7 +13,7 @@ function App() {
     "/jobs_afpi.json",
     "/jobs_hudson.json",
     "/jobs_cato.json",
-    "/jobs_plf.json"   // ⬅️ Added PLF here, last in list
+    "/jobs_plf.json"
   ];
 
   useEffect(() => {
@@ -62,58 +62,28 @@ function App() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        Conservative Jobs Board
-      </h1>
-
-      <table className="min-w-full border border-gray-400">
+    <div className="App">
+      <h1>Conservative Jobs Board</h1>
+      <table>
         <thead>
-          <tr className="bg-gray-200">
-            <th
-              className="p-2 border cursor-pointer"
-              onClick={() => sortTable("title")}
-            >
-              Job Title
-            </th>
-            <th
-              className="p-2 border cursor-pointer"
-              onClick={() => sortTable("organization")}
-            >
-              Organization
-            </th>
-            <th
-              className="p-2 border cursor-pointer"
-              onClick={() => sortTable("location")}
-            >
-              Location
-            </th>
-            <th
-              className="p-2 border cursor-pointer"
-              onClick={() => sortTable("type")}
-            >
-              Type
-            </th>
-            <th
-              className="p-2 border cursor-pointer"
-              onClick={() => sortTable("date_posted")}
-            >
-              Date Posted
-            </th>
-            <th className="p-2 border">Link</th>
+          <tr>
+            <th onClick={() => sortTable("title")}>Job Title</th>
+            <th onClick={() => sortTable("organization")}>Organization</th>
+            <th onClick={() => sortTable("location")}>Location</th>
+            <th onClick={() => sortTable("type")}>Type</th>
+            <th>Link</th>
           </tr>
         </thead>
 
         <tbody>
           {jobs.map((job, index) => (
-            <tr key={index} className="border">
-              <td className="p-2 border">{job.title}</td>
-              <td className="p-2 border">{job.organization}</td>
-              <td className="p-2 border">{job.location}</td>
-              <td className="p-2 border">{job.type}</td>
-              <td className="p-2 border">{job.date_posted}</td>
-              <td className="p-2 border text-blue-600 underline">
-                <a href={job.link} target="_blank" rel="noopener noreferrer">
+            <tr key={index}>
+              <td>{job.title}</td>
+              <td>{job.organization}</td>
+              <td>{job.location}</td>
+              <td>{job.type}</td>
+              <td>
+                <a href={job.link} target="_blank" rel="noreferrer">
                   Apply
                 </a>
               </td>
