@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // ALL job JSON sources (updated to include AIER + ExcelinEd)
+  // All sources including ExcelinEd + AIER
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -24,19 +24,24 @@ function App() {
     async function loadJobs() {
       let allJobs = [];
 
-      for (const src of sources) {
-        try {
-          const res = await fetch(src);
-          if (!res.ok) continue;
-
-          const data = await res.json();
-          if (Array.isArray(data)) {
-            allJobs = [...allJobs, ...data];
+      // Load all files in parallel
+      const results = await Promise.all(
+        sources.map(async (src) => {
+          try {
+            const res = await fetch(src);
+            if (!res.ok) return [];
+            const data = await res.json();
+            return Array.isArray(data) ? data : [];
+          } catch {
+            return [];
           }
-        } catch (e) {
-          console.error("Failed to load:", src, e);
-        }
-      }
+        })
+      );
+
+      // Flatten and store once (prevents overwriting bugs)
+      results.forEach((arr) => {
+        allJobs = [...allJobs, ...arr];
+      });
 
       setJobs(allJobs);
     }
@@ -44,6 +49,7 @@ function App() {
     loadJobs();
   }, []);
 
+  // Sorting
   function sortBy(column) {
     let direction = sortDirection;
 
@@ -75,6 +81,17 @@ function App() {
     );
   }
 
+  // Centralized company/organization fallback logic
+  function getCompany(job) {
+    return (
+      job.company ||
+      job.organization ||
+      job.org ||
+      job.employer ||
+      ""
+    );
+  }
+
   return (
     <div style={{ padding: "20px" }}>
       <h1>Conservative Jobs Board</h1>
@@ -92,8 +109,8 @@ function App() {
         <tbody>
           {jobs.map((job, i) => (
             <tr key={i}>
-              <td>{job.title}</td>
-              <td>{job.company}</td>
+              <td>{job.title || ""}</td>
+              <td>{getCompany(job)}</td>
               <td>{job.location || ""}</td>
               <td>{job.type || ""}</td>
               <td>
