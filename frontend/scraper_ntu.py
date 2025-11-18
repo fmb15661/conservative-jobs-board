@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
 
 def scrape_ntu():
     url = "https://www.ntu.org/about/page/career-and-internship-opportunities"
@@ -11,50 +12,45 @@ def scrape_ntu():
 
     soup = BeautifulSoup(response.text, "html.parser")
 
-    # Where NTU lists the jobs
-    job_blocks = soup.select("div.career__content a")
+    container = soup.select_one(".rich-text-content")
+    if not container:
+        print("❌ Could not find .rich-text-content section")
+        return
 
     jobs = []
 
-    for a in job_blocks:
-        title_raw = a.get_text(strip=True)
-        link = a.get("href")
+    # Get all <a> links inside the rich text
+    links = container.find_all("a")
+    print(f"Found {len(links)} total <a> tags inside content")
 
-        # Absolute URL
-        if link.startswith("/"):
-            link = "https://www.ntu.org" + link
+    for a in links:
+        href = a.get("href", "")
+        text = a.get_text(strip=True)
 
-        # LOAD DETAIL PAGE to get location
-        loc = "N/A"
-        try:
-            detail = requests.get(link, headers={"User-Agent": "Mozilla/5.0"})
-            detail.raise_for_status()
-            s2 = BeautifulSoup(detail.text, "html.parser")
+        # Only take job links that go to ApplyToJob
+        if "applytojob.com/apply" not in href:
+            continue
 
-            # ApplyToJob uses <div class="posting-categories"> for location
-            loc_el = s2.select_one(".posting-categories div")
-            if loc_el:
-                loc = loc_el.get_text(strip=True)
-        except:
-            pass
-
-        # CLEAN title (remove salary prefixes like “Vice President of Ops - Salary Range …”)
-        title = title_raw.split(" - Salary Range")[0].strip()
+        title = text
+        link = href
+        location = "Washington, DC"  # You confirmed each job shows location
 
         jobs.append({
             "title": title,
             "organization": "National Taxpayers Union",
-            "location": loc,
+            "location": location,
             "type": "N/A",
-            # no date_posted (you removed this globally)
             "link": link
         })
 
-    # Save JSON
-    with open("public/jobs_ntu.json", "w") as f:
+        print("Scraped job:", title)
+
+    output_path = os.path.join("public", "jobs_ntu.json")
+    with open(output_path, "w") as f:
         json.dump(jobs, f, indent=2)
 
-    print(f"Saved {len(jobs)} NTU jobs to public/jobs_ntu.json")
+    print(f"\nSaved {len(jobs)} NTU jobs to public/jobs_ntu.json")
+
 
 if __name__ == "__main__":
     scrape_ntu()
