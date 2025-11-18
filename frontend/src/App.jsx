@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // ALL job JSON sources, including Acton
+  // ALL job JSON sources (updated to include AIER + ExcelinEd)
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -15,32 +15,36 @@ function App() {
     "/jobs_cato.json",
     "/jobs_plf.json",
     "/jobs_ntu.json",
-    "/jobs_acton.json"
+    "/jobs_acton.json",
+    "/jobs_aier.json",
+    "/jobs_excelined.json"
   ];
 
   useEffect(() => {
     async function loadJobs() {
-      let all = [];
+      let allJobs = [];
 
       for (const src of sources) {
         try {
-          const response = await fetch(src);
-          if (response.ok) {
-            const data = await response.json();
-            all = [...all, ...data];
+          const res = await fetch(src);
+          if (!res.ok) continue;
+
+          const data = await res.json();
+          if (Array.isArray(data)) {
+            allJobs = [...allJobs, ...data];
           }
         } catch (e) {
-          console.log("Failed to load:", src);
+          console.error("Failed to load:", src, e);
         }
       }
 
-      setJobs(all);
+      setJobs(allJobs);
     }
 
     loadJobs();
   }, []);
 
-  const sortTable = (column) => {
+  function sortBy(column) {
     let direction = sortDirection;
 
     if (sortColumn === column) {
@@ -49,71 +53,51 @@ function App() {
       direction = "asc";
     }
 
-    const sorted = [...jobs].sort((a, b) => {
-      const x = a[column] ? a[column].toString().toLowerCase() : "";
-      const y = b[column] ? b[column].toString().toLowerCase() : "";
+    setSortColumn(column);
+    setSortDirection(direction);
 
+    const sorted = [...jobs].sort((a, b) => {
+      const x = (a[column] || "").toLowerCase();
+      const y = (b[column] || "").toLowerCase();
       if (x < y) return direction === "asc" ? -1 : 1;
       if (x > y) return direction === "asc" ? 1 : -1;
       return 0;
     });
 
-    setSortColumn(column);
-    setSortDirection(direction);
     setJobs(sorted);
-  };
+  }
+
+  function header(label, column) {
+    return (
+      <th onClick={() => sortBy(column)} style={{ cursor: "pointer" }}>
+        {label} {sortColumn === column ? (sortDirection === "asc" ? "▲" : "▼") : ""}
+      </th>
+    );
+  }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4 text-center">
-        Conservative Jobs Board
-      </h1>
+    <div style={{ padding: "20px" }}>
+      <h1>Conservative Jobs Board</h1>
 
-      <table className="min-w-full bg-white border border-gray-300">
+      <table border="1" cellPadding="8" cellSpacing="0" width="100%">
         <thead>
           <tr>
-            <th
-              className="py-2 px-4 border-b cursor-pointer"
-              onClick={() => sortTable("title")}
-            >
-              Job Title
-            </th>
-            <th
-              className="py-2 px-4 border-b cursor-pointer"
-              onClick={() => sortTable("organization")}
-            >
-              Organization
-            </th>
-            <th
-              className="py-2 px-4 border-b cursor-pointer"
-              onClick={() => sortTable("location")}
-            >
-              Location
-            </th>
-            <th
-              className="py-2 px-4 border-b cursor-pointer"
-              onClick={() => sortTable("type")}
-            >
-              Type
-            </th>
-            <th className="py-2 px-4 border-b">Link</th>
+            {header("Title", "title")}
+            {header("Company", "company")}
+            {header("Location", "location")}
+            {header("Type", "type")}
+            {header("Link", "url")}
           </tr>
         </thead>
-
         <tbody>
-          {jobs.map((job, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="py-2 px-4 border-b">{job.title}</td>
-              <td className="py-2 px-4 border-b">{job.organization}</td>
-              <td className="py-2 px-4 border-b">{job.location}</td>
-              <td className="py-2 px-4 border-b">{job.type}</td>
-              <td className="py-2 px-4 border-b">
-                <a
-                  href={job.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 underline"
-                >
+          {jobs.map((job, i) => (
+            <tr key={i}>
+              <td>{job.title}</td>
+              <td>{job.company}</td>
+              <td>{job.location || ""}</td>
+              <td>{job.type || ""}</td>
+              <td>
+                <a href={job.url} target="_blank" rel="noopener noreferrer">
                   Apply
                 </a>
               </td>
