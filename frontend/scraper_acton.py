@@ -1,37 +1,34 @@
 import requests
 from bs4 import BeautifulSoup
 import json
-
-ACTON_URL = "https://www.acton.org/careers"
-OUTPUT_FILE = "public/jobs_acton.json"
+import os
 
 def scrape_acton():
+    url = "https://www.acton.org/careers"
     print("Requesting Acton careers page...")
 
-    response = requests.get(ACTON_URL, headers={"User-Agent": "Mozilla/5.0"})
-    response.raise_for_status()
-
+    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
     soup = BeautifulSoup(response.text, "html.parser")
-    job_items = soup.select("li.opening")
-
-    print(f"Found {len(job_items)} Acton job cards")
 
     jobs = []
+    cards = soup.select("ul.careers-listing__internships li.opening")
 
-    for item in job_items:
-        title_el = item.select_one(".opening__title a")
-        loc_el = item.select_one(".opening__location")
+    print(f"Found {len(cards)} Acton job cards")
+
+    for card in cards:
+        title_el = card.select_one(".opening__title a")
+        loc_el = card.select_one(".opening__location")
 
         if not title_el:
             continue
 
-        title = title_el.get_text(strip=True)
-        location = loc_el.get_text(strip=True) if loc_el else "N/A"
-        link = "https://www.acton.org" + title_el.get("href")
+        raw_title = title_el.get_text(strip=True)
 
-        # Clean "Acton Institute | " prefix
-        if "Acton Institute | " in location:
-            location = location.replace("Acton Institute | ", "")
+        # ⭐ FIX: convert ALL CAPS to Title Case
+        title = raw_title.title()
+
+        location = loc_el.get_text(strip=True) if loc_el else "N/A"
+        link = "https://www.acton.org" + title_el["href"]
 
         jobs.append({
             "title": title,
@@ -41,10 +38,13 @@ def scrape_acton():
             "link": link
         })
 
-    with open(OUTPUT_FILE, "w") as f:
+    # save
+    output_path = os.path.join("public", "jobs_acton.json")
+    with open(output_path, "w") as f:
         json.dump(jobs, f, indent=2)
 
-    print(f"Saved {len(jobs)} Acton jobs to {OUTPUT_FILE}")
+    print(f"Saved {len(jobs)} Acton jobs to {output_path}")
+
 
 if __name__ == "__main__":
     scrape_acton()
