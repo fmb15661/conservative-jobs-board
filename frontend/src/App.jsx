@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // List of job JSON sources (Heritage added)
+  // Job JSON sources (with NTU added)
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -14,7 +14,7 @@ function App() {
     "/jobs_hudson.json",
     "/jobs_cato.json",
     "/jobs_plf.json",
-    "/jobs_heritage.json",
+    "/jobs_ntu.json"
   ];
 
   useEffect(() => {
@@ -63,16 +63,14 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div className="container">
       <h1>Conservative Jobs Board</h1>
-
       <table>
         <thead>
           <tr>
             <th onClick={() => sortTable("title")}>Job Title</th>
             <th onClick={() => sortTable("organization")}>Organization</th>
             <th onClick={() => sortTable("location")}>Location</th>
-            <th onClick={() => sortTable("type")}>Type</th>
             <th>Link</th>
           </tr>
         </thead>
@@ -82,7 +80,6 @@ function App() {
               <td>{job.title}</td>
               <td>{job.organization}</td>
               <td>{job.location}</td>
-              <td>{job.type}</td>
               <td>
                 <a href={job.link} target="_blank" rel="noreferrer">
                   Apply

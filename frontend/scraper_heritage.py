@@ -1,30 +1,27 @@
 import requests
-from bs4 import BeautifulSoup
 import json
 
-def scrape_heritage_jobs():
-    url = "https://www.heritage.org/careers"
-    print("Requesting Heritage careers page...")
+API_URL = "https://careers-aei.icims.com/jobs/search?pr=0&schema=1&format=json"
+OUTPUT = "public/jobs_heritage.json"
 
-    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    response.raise_for_status()
+def scrape_heritage():
+    print("Requesting Heritage ICIMS JSON API...")
 
-    soup = BeautifulSoup(response.text, "html.parser")
+    response = requests.get(API_URL, headers={
+        "User-Agent": "Mozilla/5.0"
+    })
+
+    if not response.ok:
+        print("❌ Failed to load API:", response.status_code)
+        return
+
+    data = response.json()
 
     jobs = []
-
-    # Heritage job cards
-    job_cards = soup.select(".views-row")
-    print(f"Found {len(job_cards)} Heritage job cards")
-
-    for card in job_cards:
-        title_el = card.select_one("h3")
-        location_el = card.select_one(".field--name-field-location")
-        link_el = card.select_one("a")
-
-        title = title_el.get_text(strip=True) if title_el else "N/A"
-        location = location_el.get_text(strip=True) if location_el else "N/A"
-        link = "https://www.heritage.org" + link_el.get("href") if link_el else "N/A"
+    for item in data.get("jobs", []):
+        title = item.get("title", "N/A")
+        link = item.get("url", "N/A")
+        location = item.get("location", "Virtual")
 
         jobs.append({
             "title": title,
@@ -34,14 +31,11 @@ def scrape_heritage_jobs():
             "link": link
         })
 
-    # Save JSON
-    output_path = "public/jobs_heritage.json"
-    with open(output_path, "w") as f:
+    with open(OUTPUT, "w") as f:
         json.dump(jobs, f, indent=2)
 
-    print(f"Saved {len(jobs)} Heritage jobs to {output_path}")
-
+    print(f"Saved {len(jobs)} Heritage jobs to {OUTPUT}")
 
 if __name__ == "__main__":
-    scrape_heritage_jobs()
+    scrape_heritage()
 
