@@ -8,13 +8,14 @@ OUTPUT_FILE = "public/jobs_ntu.json"
 
 def clean_title(title):
     """
-    Remove salary ranges like:
-    - Salary Range [$100,000-150,000]
-    - - [$25/hour]
-    - anything inside brackets following a dash
+    Remove anything after the FIRST hyphen.
+    This guarantees salary ranges are removed.
+    Example:
+      'Vice President - Salary Range [$100,000]' -> 'Vice President'
     """
-    # Remove anything after a dash that contains a bracket
-    return re.sub(r"-\s*\[.*?\]", "", title).strip()
+    if "-" in title:
+        title = title.split("-")[0].strip()
+    return title.strip()
 
 def scrape_ntu():
     print("Requesting NTU job listings...")
@@ -26,8 +27,8 @@ def scrape_ntu():
 
     jobs = []
 
-    # Look for all <a> tags that link to ApplyToJob.com
-    job_links = soup.find_all("a", href=lambda x: x and "applytojob.com" in x)
+    # Find all <a> tags that link to ApplyToJob.com
+    job_links = soup.find_all("a", href=lambda x: x and "applytojob.com" in x.lower())
 
     for link in job_links:
         raw_title = link.text.strip()
@@ -36,14 +37,14 @@ def scrape_ntu():
         jobs.append({
             "title": title,
             "organization": "National Taxpayers Union",
-            "location": "Washington, DC (Hybrid/Remote)",  # NTU lists DC but allows remote work
+            "location": "Washington, DC (Hybrid/Remote)",
             "type": "N/A",
             "link": link["href"]
         })
 
         print(f"Scraped job: {title}")
 
-    # Save JSON
+    # Save results
     with open(OUTPUT_FILE, "w") as f:
         json.dump(jobs, f, indent=2)
 
