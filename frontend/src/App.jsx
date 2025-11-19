@@ -5,7 +5,6 @@ function App() {
   const [sortColumn, setSortColumn] = useState("title");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // All JSON feeds, including ExcelinEd
   const sources = [
     "/jobs.json",
     "/jobs_talentmarket.json",
@@ -16,12 +15,13 @@ function App() {
     "/jobs_plf.json",
     "/jobs_ntu.json",
     "/jobs_acton.json",
-    "/jobs_excelined.json",
+    "/jobs_aier.json",
+    "/jobs_excelined.json"
   ];
 
   useEffect(() => {
     async function loadJobs() {
-      const allJobs = [];
+      const collected = [];
 
       for (const src of sources) {
         try {
@@ -34,96 +34,72 @@ function App() {
           data.forEach((raw) => {
             const normalized = normalizeJob(raw);
             if (normalized && normalized.title && normalized.url) {
-              allJobs.push(normalized);
+              collected.push(normalized);
             }
           });
         } catch (err) {
-          console.error("Error loading jobs from", src, err);
+          console.error("Error loading: ", src, err);
         }
       }
 
-      const deduped = dedupeJobs(allJobs);
-      setJobs(deduped);
+      setJobs(dedupeJobs(collected));
     }
 
     loadJobs();
   }, []);
 
-  function normalizeJob(job) {
-    // Title
-    const title =
-      (job.title ||
-        job.position ||
-        job.job_title ||
-        "").toString().trim();
+  function normalizeText(text) {
+    if (!text) return "";
+    return text
+      .normalize("NFKD")
+      .replace(/[\u2018\u2019\u201C\u201D]/g, "'") // smart quotes → normal
+      .replace(/\s+/g, " ")
+      .trim()
+      .toLowerCase();
+  }
 
-    // Organization / company
+  function normalizeJob(job) {
+    const title = (job.title || "").toString().trim();
     const organization =
       (job.organization ||
         job.company ||
         job.employer ||
-        "").toString().trim();
+        "N/A").toString().trim();
 
-    // URL
-    const url =
-      (job.link ||
-        job.url ||
-        job.apply_url ||
-        "").toString().trim();
+    const url = (job.url || job.link || "").toString().trim();
 
-    // Raw location and type
-    const rawLocation =
-      (job.location ||
-        job.city ||
-        job.region ||
-        "").toString().trim();
+    let rawLocation = (job.location || "").toString().trim();
+    let jobType = (job.type || "").toString().trim() || "N/A";
 
-    const rawType =
-      (job.type ||
-        job.job_type ||
-        "").toString().trim();
+    const description = (job.description || "").toString().trim();
 
-    // Description (for virtual detection)
-    const description =
-      (job.description ||
-        job.desc ||
-        job.summary ||
-        "").toString().trim();
+    const normDesc = normalizeText(description);
+    const normLoc = normalizeText(rawLocation);
 
-    const descLower = description.toLowerCase();
-    let location = rawLocation;
+    let finalLocation = "N/A";
 
-    // If the location string itself says anything about virtual, simplify it
-    if (location) {
-      if (location.toLowerCase().includes("virtual")) {
-        location = "Virtual";
-      }
-    } else {
-      // No explicit location – infer from description if possible
-      if (descLower.includes("virtual")) {
-        location = "Virtual";
-      } else {
-        location = "N/A";
-      }
+    if (normDesc.includes("virtual") || normDesc.includes("remote")) {
+      finalLocation = "Virtual";
+    } else if (normLoc.includes("virtual") || normLoc.includes("remote")) {
+      finalLocation = "Virtual";
+    } else if (rawLocation) {
+      finalLocation = rawLocation;
     }
-
-    // Normalize type – we are not really using it yet, so default to N/A if blank
-    const type = rawType || "N/A";
 
     return {
       title,
-      organization: organization || "N/A",
-      location,
-      type,
-      url,
+      organization,
+      location: finalLocation,
+      type: jobType,
+      url
     };
   }
 
-  function dedupeJobs(list) {
+  function dedupeJobs(arr) {
     const seen = new Set();
     const result = [];
 
-    for (const job of list) {
+    for (const job of arr) {
       const key = `${job.title.toLowerCase()}||${job.organization.toLowerCase()}||${job.url}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -135,7 +111,7 @@ function App() {
 
   function handleSort(column) {
     if (sortColumn === column) {
-      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
       setSortColumn(column);
       setSortDirection("asc");
@@ -143,102 +119,75 @@ function App() {
   }
 
   function getSortedJobs() {
-    const sorted = [...jobs];
-    sorted.sort((a, b) => {
-      const aVal = (a[sortColumn] || "").toString().toLowerCase();
-      const bVal = (b[sortColumn] || "").toString().toLowerCase();
-
-      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
+    const sortable = [...jobs];
+    sortable.sort((a, b) => {
+      const x = (a[sortColumn] || "").toLowerCase();
+      const y = (b[sortColumn] || "").toLowerCase();
+      if (x < y) return sortDirection === "asc" ? -1 : 1;
+      if (x > y) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
-    return sorted;
+    return sortable;
   }
 
   const sortedJobs = getSortedJobs();
 
-  const renderSortArrow = (column) => {
-    if (sortColumn !== column) return "";
-    return sortDirection === "asc" ? " ▲" : " ▼";
-  };
+  const arrow = (column) =>
+    sortColumn === column ? (sortDirection === "asc" ? " ▲" : " ▼") : "";
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-2xl font-bold mb-4">
-        Conservative Jobs Board
-      </h1>
+    <div style={{ padding: "20px" }}>
+      <h1>Conservative Jobs Board</h1>
 
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="min-w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th
-                className="px-4 py-2 border cursor-pointer text-left"
-                onClick={() => handleSort("title")}
-              >
-                Job Title{renderSortArrow("title")}
-              </th>
-              <th
-                className="px-4 py-2 border cursor-pointer text-left"
-                onClick={() => handleSort("organization")}
-              >
-                Organization{renderSortArrow("organization")}
-              </th>
-              <th
-                className="px-4 py-2 border cursor-pointer text-left"
-                onClick={() => handleSort("location")}
-              >
-                Location{renderSortArrow("location")}
-              </th>
-              <th
-                className="px-4 py-2 border cursor-pointer text-left"
-                onClick={() => handleSort("type")}
-              >
-                Job Type{renderSortArrow("type")}
-              </th>
+      <table border="1" width="100%" cellPadding="8" cellSpacing="0">
+        <thead>
+          <tr>
+            <th style={{ cursor: "pointer" }} onClick={() => handleSort("title")}>
+              Title{arrow("title")}
+            </th>
+            <th
+              style={{ cursor: "pointer" }}
+              onClick={() => handleSort("organization")}
+            >
+              Organization{arrow("organization")}
+            </th>
+            <th
+              style={{ cursor: "pointer" }}
+              onClick={() => handleSort("location")}
+            >
+              Location{arrow("location")}
+            </th>
+            <th style={{ cursor: "pointer" }} onClick={() => handleSort("type")}>
+              Type{arrow("type")}
+            </th>
+            <th>Link</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {sortedJobs.map((job, i) => (
+            <tr key={i}>
+              <td>{job.title}</td>
+              <td>{job.organization}</td>
+              <td>{job.location}</td>
+              <td>{job.type}</td>
+              <td>
+                <a href={job.url} target="_blank">
+                  Apply
+                </a>
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {sortedJobs.map((job, index) => (
-              <tr
-                key={`${job.title}-${job.organization}-${index}`}
-                className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}
-              >
-                <td className="px-4 py-2 border">
-                  <a
-                    href={job.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-blue-600 underline"
-                  >
-                    {job.title}
-                  </a>
-                </td>
-                <td className="px-4 py-2 border">
-                  {job.organization || "N/A"}
-                </td>
-                <td className="px-4 py-2 border">
-                  {job.location || "N/A"}
-                </td>
-                <td className="px-4 py-2 border">
-                  {job.type || "N/A"}
-                </td>
-              </tr>
-            ))}
+          ))}
 
-            {sortedJobs.length === 0 && (
-              <tr>
-                <td
-                  colSpan={4}
-                  className="px-4 py-4 border text-center text-gray-500"
-                >
-                  No jobs found.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          {sortedJobs.length === 0 && (
+            <tr>
+              <td colSpan="5" style={{ textAlign: "center" }}>
+                No jobs found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
