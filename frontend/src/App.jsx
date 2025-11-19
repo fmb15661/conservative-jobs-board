@@ -5,7 +5,6 @@ function App() {
   const [sortColumn, setSortColumn] = useState("title");
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // 🔥 ALL sources including ALEC + CRC
   const sources = [
     "/jobs.json",
     "/jobs_talentmarket.json",
@@ -63,14 +62,23 @@ function App() {
 
   function normalizeJob(job) {
     const title = (job.title || "").toString().trim();
-    const organization = (job.organization || "").toString().trim();
+
+    // 🔥 FIXED: supports every possible org key
+    const organization =
+      job.organization ||
+      job.org ||
+      job.company ||
+      job.company_name ||
+      job.employer ||
+      "N/A";
+
     const location = (job.location || "").toString().trim();
     const url =
       job.link || job.url || job.apply_link || job.apply_url || "";
 
     return {
       title,
-      organization,
+      organization: organization.toString().trim(),
       location: detectVirtual(location),
       url,
       type: job.type || "N/A"
