@@ -21,9 +21,9 @@ def scrape_crc_internships():
         if title_text.lower().startswith("internship in"):
             internships.append({
                 "title": title_text,
-                "organization": "Capital Research Center",
+                "company": "Capital Research Center",   # FIXED
                 "location": "Washington, D.C.",
-                "link": URL,           # FIXED KEY
+                "link": URL,                            # FIXED
                 "type": "N/A"
             })
 
