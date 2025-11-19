@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // All sources including ExcelinEd + AIER
+  // All sources (unchanged except added ExcelinEd & AIER)
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -22,9 +22,7 @@ function App() {
 
   useEffect(() => {
     async function loadJobs() {
-      let allJobs = [];
-
-      // Load all files in parallel
+      // Load all JSON files in parallel
       const results = await Promise.all(
         sources.map(async (src) => {
           try {
@@ -38,7 +36,8 @@ function App() {
         })
       );
 
-      // Flatten and store once (prevents overwriting bugs)
+      // Merge all job arrays once (prevents overwriting)
+      let allJobs = [];
       results.forEach((arr) => {
         allJobs = [...allJobs, ...arr];
       });
@@ -49,7 +48,7 @@ function App() {
     loadJobs();
   }, []);
 
-  // Sorting
+  // Sorting logic
   function sortBy(column) {
     let direction = sortDirection;
 
@@ -81,15 +80,37 @@ function App() {
     );
   }
 
-  // Centralized company/organization fallback logic
+  // COMPANY FALLBACK LOGIC
   function getCompany(job) {
     return (
       job.company ||
       job.organization ||
       job.org ||
       job.employer ||
-      ""
+      "N/A"
     );
+  }
+
+  // LOCATION LOGIC
+  function getLocation(job) {
+    const loc = (job.location || "").trim();
+
+    if (!loc) return "N/A";
+
+    // Normalize case for checking
+    const lower = loc.toLowerCase();
+
+    if (lower.includes("virtual") || lower.includes("remote")) {
+      return "Virtual";
+    }
+
+    return loc;
+  }
+
+  // JOB TYPE LOGIC
+  function getType(job) {
+    if (job.type && job.type.trim() !== "") return job.type;
+    return "N/A";
   }
 
   return (
@@ -111,8 +132,8 @@ function App() {
             <tr key={i}>
               <td>{job.title || ""}</td>
               <td>{getCompany(job)}</td>
-              <td>{job.location || ""}</td>
-              <td>{job.type || ""}</td>
+              <td>{getLocation(job)}</td>
+              <td>{getType(job)}</td>
               <td>
                 <a href={job.url} target="_blank" rel="noopener noreferrer">
                   Apply
