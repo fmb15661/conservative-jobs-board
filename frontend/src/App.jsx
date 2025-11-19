@@ -5,7 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState(null);
   const [sortDirection, setSortDirection] = useState("asc");
 
-  // All sources (unchanged except added ExcelinEd & AIER)
+  // ALL sources including ExcelinEd and AIER
   const sources = [
     "/jobs.json",
     "/jobs_tm.json",
@@ -22,7 +22,6 @@ function App() {
 
   useEffect(() => {
     async function loadJobs() {
-      // Load all JSON files in parallel
       const results = await Promise.all(
         sources.map(async (src) => {
           try {
@@ -36,7 +35,6 @@ function App() {
         })
       );
 
-      // Merge all job arrays once (prevents overwriting)
       let allJobs = [];
       results.forEach((arr) => {
         allJobs = [...allJobs, ...arr];
@@ -75,7 +73,8 @@ function App() {
   function header(label, column) {
     return (
       <th onClick={() => sortBy(column)} style={{ cursor: "pointer" }}>
-        {label} {sortColumn === column ? (sortDirection === "asc" ? "▲" : "▼") : ""}
+        {label}{" "}
+        {sortColumn === column ? (sortDirection === "asc" ? "▲" : "▼") : ""}
       </th>
     );
   }
@@ -91,23 +90,30 @@ function App() {
     );
   }
 
-  // LOCATION LOGIC
+  // LOCATION + DESCRIPTION LOGIC (NEW)
   function getLocation(job) {
-    const loc = (job.location || "").trim();
+    const desc = (job.description || "").toLowerCase();
+    const loc = (job.location || "").toLowerCase();
 
-    if (!loc) return "N/A";
-
-    // Normalize case for checking
-    const lower = loc.toLowerCase();
-
-    if (lower.includes("virtual") || lower.includes("remote")) {
+    // If description says Virtual/Remote → Virtual
+    if (desc.includes("virtual") || desc.includes("remote")) {
       return "Virtual";
     }
 
-    return loc;
+    // If location says Virtual/Remote → Virtual
+    if (loc.includes("virtual") || loc.includes("remote")) {
+      return "Virtual";
+    }
+
+    // If location blank → N/A
+    if (!job.location || job.location.trim() === "") {
+      return "N/A";
+    }
+
+    return job.location;
   }
 
-  // JOB TYPE LOGIC
+  // JOB TYPE (default to N/A)
   function getType(job) {
     if (job.type && job.type.trim() !== "") return job.type;
     return "N/A";
