@@ -17,8 +17,7 @@ function App() {
     "/jobs_acton.json",
     "/jobs_aier.json",
     "/jobs_excelined.json",
-    "/jobs_crc.json",
-    "/jobs_alec.json"
+    "/jobs_acc.json"   // ✅ ADDED
   ];
 
   useEffect(() => {
@@ -63,106 +62,110 @@ function App() {
   function normalizeJob(job) {
     const title = (job.title || "").toString().trim();
 
-    // 🔥 FIXED: supports every possible org key
-    const organization =
-      job.organization ||
-      job.org ||
-      job.company ||
-      job.company_name ||
-      job.employer ||
-      "N/A";
+    const orgFields = [
+      job.organization,
+      job.company,
+      job.org,
+      job.employer,
+      job.source
+    ];
 
-    const location = (job.location || "").toString().trim();
-    const url =
-      job.link || job.url || job.apply_link || job.apply_url || "";
+    let organization = "";
+    for (const f of orgFields) {
+      if (f && typeof f === "string" && f.trim() !== "") {
+        organization = f.trim();
+        break;
+      }
+    }
+
+    if (!organization) organization = "N/A";
+
+    const location = (job.location || job.city || "").toString().trim() || "N/A";
+    const url = (job.link || job.url || "").toString().trim();
+    const type = (job.type || job.job_type || "").toString().trim() || "N/A";
 
     return {
       title,
-      organization: organization.toString().trim(),
-      location: detectVirtual(location),
+      organization,
+      location,
       url,
-      type: job.type || "N/A"
+      type
     };
   }
 
-  function detectVirtual(location) {
-    if (!location) return "N/A";
-    const loc = location.toLowerCase();
-    if (loc.includes("virtual") || loc.includes("remote")) {
-      return "Virtual";
-    }
-    return location;
-  }
-
   function dedupeJobs(list) {
-    const seen = new Set();
-    const output = [];
+    const seen = new Map();
 
-    list.forEach((job) => {
-      const key = normalizeText(job.title) + "|" + normalizeText(job.organization);
+    for (const job of list) {
+      const key = normalizeText(job.title) + normalizeText(job.organization);
       if (!seen.has(key)) {
-        seen.add(key);
-        output.push(job);
+        seen.set(key, job);
       }
-    });
+    }
 
-    return output;
+    return Array.from(seen.values());
   }
 
-  function sortJobs(jobs) {
-    return [...jobs].sort((a, b) => {
-      const valA = normalizeText(a[sortColumn]);
-      const valB = normalizeText(b[sortColumn]);
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+  function sortJobs(list) {
+    if (!sortColumn) return list;
+
+    const sorted = [...list].sort((a, b) => {
+      const aVal = (a[sortColumn] || "").toString().toLowerCase();
+      const bVal = (b[sortColumn] || "").toString().toLowerCase();
+
+      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
+      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
+
+    return sorted;
   }
 
-  function handleSort(column) {
-    if (column === sortColumn) {
+  function handleSort(col) {
+    if (sortColumn === col) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
-      setSortColumn(column);
+      setSortColumn(col);
       setSortDirection("asc");
     }
   }
 
-  const sortedJobs = sortJobs(jobs);
-
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Conservative Jobs Board</h1>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
 
       <table className="table-auto w-full border-collapse border border-gray-400">
         <thead>
-          <tr>
+          <tr className="bg-gray-200">
             {["title", "organization", "location", "type"].map((col) => (
               <th
                 key={col}
+                className="border border-gray-400 p-2 cursor-pointer"
                 onClick={() => handleSort(col)}
-                className="border border-gray-400 px-2 py-1 cursor-pointer bg-gray-100"
               >
-                {col.charAt(0).toUpperCase() + col.slice(1)}
-                {sortColumn === col ? (sortDirection === "asc" ? " ▲" : " ▼") : ""}
+                {col.toUpperCase()}{" "}
+                {sortColumn === col ? (sortDirection === "asc" ? "▲" : "▼") : ""}
               </th>
             ))}
-            <th className="border border-gray-400 px-2 py-1 bg-gray-100">Link</th>
           </tr>
         </thead>
 
         <tbody>
-          {sortedJobs.map((job, idx) => (
-            <tr key={idx} className="border border-gray-300">
-              <td className="border px-2 py-1">{job.title}</td>
-              <td className="border px-2 py-1">{job.organization}</td>
-              <td className="border px-2 py-1">{job.location}</td>
-              <td className="border px-2 py-1">{job.type}</td>
-              <td className="border px-2 py-1">
-                <a href={job.url} className="text-blue-600 underline" target="_blank" rel="noreferrer">
-                  Apply
+          {sortJobs(jobs).map((job, idx) => (
+            <tr key={idx} className="border border-gray-400">
+              <td className="border p-2">
+                <a
+                  href={job.url}
+                  className="text-blue-600 underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {job.title}
                 </a>
               </td>
+              <td className="border p-2">{job.organization}</td>
+              <td className="border p-2">{job.location}</td>
+              <td className="border p-2">{job.type}</td>
             </tr>
           ))}
         </tbody>
