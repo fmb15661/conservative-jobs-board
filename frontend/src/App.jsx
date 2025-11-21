@@ -5,6 +5,7 @@ function App() {
   const [sortColumn, setSortColumn] = useState("title");
   const [sortDirection, setSortDirection] = useState("asc");
 
+  // 🔗 All job sources – keep this list growing but do not change UI
   const sources = [
     "/jobs.json",
     "/jobs_talentmarket.json",
@@ -17,7 +18,9 @@ function App() {
     "/jobs_acton.json",
     "/jobs_aier.json",
     "/jobs_excelined.json",
-    "/jobs_acc.json"   // ✅ ADDED
+    "/jobs_crc.json",
+    "/jobs_alec.json",
+    "/jobs_acc.json",
   ];
 
   useEffect(() => {
@@ -39,7 +42,7 @@ function App() {
             }
           });
         } catch (err) {
-          console.error("Error loading: ", src, err);
+          console.error("Error loading:", src, err);
         }
       }
 
@@ -49,55 +52,74 @@ function App() {
     loadJobs();
   }, []);
 
+  // Basic text normalizer
   function normalizeText(text) {
     if (!text) return "";
     return text
+      .toString()
       .normalize("NFKD")
-      .replace(/[\u2018\u2019\u201C\u201D]/g, "'")
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
       .replace(/\s+/g, " ")
       .trim()
       .toLowerCase();
   }
 
+  // Normalize each job shape into the format the table expects
   function normalizeJob(job) {
-    const title = (job.title || "").toString().trim();
+    if (!job || typeof job !== "object") return null;
 
-    const orgFields = [
-      job.organization,
-      job.company,
-      job.org,
-      job.employer,
-      job.source
-    ];
+    const rawTitle = (job.title || "").toString().trim();
+    const rawOrg = (job.organization || job.org || "").toString().trim();
+    const rawLocation = (job.location || job.city || "").toString().trim();
+    const rawType = (job.type || "").toString().trim();
+    const rawUrl = (job.url || job.link || "").toString().trim();
+    const rawDate = (job.date_posted || job.date || "").toString().trim();
 
-    let organization = "";
-    for (const f of orgFields) {
-      if (f && typeof f === "string" && f.trim() !== "") {
-        organization = f.trim();
-        break;
-      }
-    }
+    if (!rawTitle || !rawUrl) return null;
 
-    if (!organization) organization = "N/A";
+    // Title case for things like ACTON all-caps
+    const normalizedTitle = rawTitle
+      .toLowerCase()
+      .split(/\s+/)
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
 
-    const location = (job.location || job.city || "").toString().trim() || "N/A";
-    const url = (job.link || job.url || "").toString().trim();
-    const type = (job.type || job.job_type || "").toString().trim() || "N/A";
+    const organization = rawOrg || "N/A";
+    const location = rawLocation || "N/A";
+    const type = rawType || "N/A";
 
     return {
-      title,
+      title: normalizedTitle,
       organization,
       location,
-      url,
-      type
+      type,
+      url: rawUrl,
+      date: rawDate || "N/A",
     };
   }
 
+  // ✅ DEDUPE FIX: prefer URL as the unique key
   function dedupeJobs(list) {
     const seen = new Map();
 
     for (const job of list) {
-      const key = normalizeText(job.title) + normalizeText(job.organization);
+      if (!job) continue;
+
+      let key;
+      if (job.url) {
+        // If a URL exists, that is the unique identity of the job.
+        key = normalizeText(job.url);
+      } else {
+        // Fallback: older feeds, or weird data without URL
+        key =
+          normalizeText(job.title) +
+          "|" +
+          normalizeText(job.organization) +
+          "|" +
+          normalizeText(job.location);
+      }
+
       if (!seen.has(key)) {
         seen.set(key, job);
       }
@@ -106,10 +128,18 @@ function App() {
     return Array.from(seen.values());
   }
 
-  function sortJobs(list) {
-    if (!sortColumn) return list;
+  function handleSort(column) {
+    if (column === sortColumn) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortColumn(column);
+      setSortDirection("asc");
+    }
+  }
 
-    const sorted = [...list].sort((a, b) => {
+  function getSortedJobs() {
+    const sorted = [...jobs];
+    sorted.sort((a, b) => {
       const aVal = (a[sortColumn] || "").toString().toLowerCase();
       const bVal = (b[sortColumn] || "").toString().toLowerCase();
 
@@ -117,59 +147,94 @@ function App() {
       if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
       return 0;
     });
-
     return sorted;
   }
 
-  function handleSort(col) {
-    if (sortColumn === col) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(col);
-      setSortDirection("asc");
-    }
-  }
+  const sortedJobs = getSortedJobs();
+
+  const sortIndicator = (column) => {
+    if (column !== sortColumn) return "";
+    return sortDirection === "asc" ? " ▲" : " ▼";
+  };
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-4">Conservative Jobs Board</h1>
-
-      <table className="table-auto w-full border-collapse border border-gray-400">
-        <thead>
-          <tr className="bg-gray-200">
-            {["title", "organization", "location", "type"].map((col) => (
-              <th
-                key={col}
-                className="border border-gray-400 p-2 cursor-pointer"
-                onClick={() => handleSort(col)}
-              >
-                {col.toUpperCase()}{" "}
-                {sortColumn === col ? (sortDirection === "asc" ? "▲" : "▼") : ""}
-              </th>
-            ))}
-          </tr>
-        </thead>
-
-        <tbody>
-          {sortJobs(jobs).map((job, idx) => (
-            <tr key={idx} className="border border-gray-400">
-              <td className="border p-2">
-                <a
-                  href={job.url}
-                  className="text-blue-600 underline"
-                  target="_blank"
-                  rel="noopener noreferrer"
+    <div className="min-h-screen bg-gray-100 p-4">
+      <div className="max-w-7xl mx-auto bg-white shadow-md rounded-lg p-4">
+        <h1 className="text-2xl font-bold mb-4">
+          Conservative Jobs Board
+        </h1>
+        <div className="overflow-x-auto">
+          <table className="min-w-full text-sm border-collapse">
+            <thead>
+              <tr className="bg-gray-200">
+                <th
+                  className="px-3 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort("title")}
                 >
-                  {job.title}
-                </a>
-              </td>
-              <td className="border p-2">{job.organization}</td>
-              <td className="border p-2">{job.location}</td>
-              <td className="border p-2">{job.type}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+                  Job Title{sortIndicator("title")}
+                </th>
+                <th
+                  className="px-3 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort("organization")}
+                >
+                  Organization{sortIndicator("organization")}
+                </th>
+                <th
+                  className="px-3 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort("location")}
+                >
+                  Location{sortIndicator("location")}
+                </th>
+                <th
+                  className="px-3 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort("type")}
+                >
+                  Type{sortIndicator("type")}
+                </th>
+                <th
+                  className="px-3 py-2 text-left cursor-pointer"
+                  onClick={() => handleSort("date")}
+                >
+                  Date Posted{sortIndicator("date")}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedJobs.map((job, idx) => (
+                <tr
+                  key={`${job.url}-${idx}`}
+                  className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}
+                >
+                  <td className="border-t px-3 py-2">
+                    <a
+                      href={job.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline"
+                    >
+                      {job.title}
+                    </a>
+                  </td>
+                  <td className="border-t px-3 py-2">{job.organization}</td>
+                  <td className="border-t px-3 py-2">{job.location}</td>
+                  <td className="border-t px-3 py-2">{job.type}</td>
+                  <td className="border-t px-3 py-2">{job.date}</td>
+                </tr>
+              ))}
+              {sortedJobs.length === 0 && (
+                <tr>
+                  <td
+                    colSpan="5"
+                    className="text-center px-3 py-4 text-gray-500"
+                  >
+                    No jobs found.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
