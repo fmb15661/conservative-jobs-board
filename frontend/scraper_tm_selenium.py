@@ -1,120 +1,151 @@
 import json
 import time
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 
-BASE_URL = "https://talentmarket.org/job-openings/page/{}/"
 OUTPUT = "public/jobs_talentmarket.json"
 
 
-def get_driver():
+# -------------------------
+# SET UP SELENIUM BROWSER
+# -------------------------
+def start_browser():
     chrome_options = Options()
-    chrome_options.add_argument("--headless=new")
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--window-size=1400,2500")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_experimental_option("detach", True)  # Keep window open
 
     service = Service(ChromeDriverManager().install())
-    return webdriver.Chrome(service=service, options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
+    driver.set_page_load_timeout(30)
+    return driver
 
 
-def scroll(driver):
-    """Make sure lazy-loaded elements appear."""
-    last = driver.execute_script("return document.body.scrollHeight")
-    while True:
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(0.8)
-        new = driver.execute_script("return document.body.scrollHeight")
-        if new == last:
-            return
-        last = new
-
-
-def collect_listing_urls(driver):
-    """Collect all job URLs from all pages WITHOUT entering any job page."""
-    urls = []
-
-    page = 1
-    while True:
-        url = BASE_URL.format(page)
-        print(f"\nLoading page {page}: {url}")
-
+# -----------------------------------------
+# GET ALL LISTING PAGES (page/1 to page/99)
+# -----------------------------------------
+def get_listing_pages(driver):
+    pages = []
+    for i in range(1, 50):  # 50 is safe upper bound
+        url = f"https://talentmarket.org/job-openings/page/{i}/"
         driver.get(url)
-        time.sleep(1.5)
-        scroll(driver)
+        time.sleep(2)
 
         cards = driver.find_elements(By.CSS_SELECTOR, ".content-preview-card")
-        print(f"Page {page}: found {len(cards)} cards")
-
         if len(cards) == 0:
             break
 
-        for card in cards:
-            try:
-                a = card.find_element(By.CSS_SELECTOR, "h2 a")
-                urls.append(a.get_attribute("href"))
-            except:
-                continue
+        pages.append(url)
 
-        page += 1
-
-    print(f"\nCollected {len(urls)} job URLs.")
-    return urls
+    return pages
 
 
-def scrape_detail(driver, url):
-    """Scrape a detail job page for organization + location."""
-    try:
-        driver.get(url)
-        time.sleep(1.2)
-        scroll(driver)
-
-        about = driver.find_element(By.CSS_SELECTOR, "p.article-about").text.strip()
-        lines = [x.strip() for x in about.split("\n") if x.strip()]
-        org = lines[0] if len(lines) > 0 else "N/A"
-        location = lines[1] if len(lines) > 1 else "N/A"
-
-        title = driver.find_element(By.CSS_SELECTOR, "h1.article-h1").text.strip()
-
-        return {
-            "title": title,
-            "organization": org,
-            "location": location,
-            "url": url,
-            "type": "N/A"
-        }
-
-    except Exception as e:
-        print("Detail scrape error:", e)
-        return None
-
-
-def scrape_talent_market():
-    driver = get_driver()
-
-    # STEP 1: Collect all job URLs safely
-    job_urls = collect_listing_urls(driver)
-
+# ---------------------------------------------------
+# EXTRACT JOB TITLE + LINK FROM LISTING PAGE CARDS
+# ---------------------------------------------------
+def extract_jobs_from_listing_page(driver):
     jobs = []
 
-    # STEP 2: Visit each job page independently
-    for url in job_urls:
-        print(f"Scraping detail: {url}")
-        job = scrape_detail(driver, url)
-        if job:
-            jobs.append(job)
+    cards = driver.find_elements(By.CSS_SELECTOR, ".content-preview-card")
+    for card in cards:
+        try:
+            title_el = card.find_element(By.CSS_SELECTOR, "h2 a")
+            title = title_el.text.strip()
+            link = title_el.get_attribute("href").strip()
+
+            jobs.append({
+                "title": title,
+                "url": link
+            })
+
+        except Exception:
+            continue
+
+    return jobs
+
+
+# ---------------------------------------------------
+# VISIT EACH JOB DETAIL PAGE TO GET TRUE ORG + LOC
+# ---------------------------------------------------
+def scrape_detail_page(driver, job_url):
+    driver.get(job_url)
+    time.sleep(2)
+
+    try:
+        about = driver.find_element(By.CSS_SELECTOR, "p.article-about").text.strip().split("\n")
+        org = about[0].strip()
+        location = about[1].strip() if len(about) > 1 else "N/A"
+
+        return org, location
+
+    except Exception:
+        return "N/A", "N/A"
+
+
+# -------------------------
+# MAIN SCRAPER
+# -------------------------
+def scrape_talent_market():
+    driver = start_browser()
+    print("\n=== TALENT MARKET SCRAPER STARTED ===\n")
+
+    print("Discovering listing pages...")
+    listing_pages = get_listing_pages(driver)
+    print(f"Found {len(listing_pages)} pages\n")
+
+    # Collect listing-level jobs (title + link)
+    found_jobs = []
+    seen_urls = set()
+
+    for page_url in listing_pages:
+        print(f"Scraping listing page: {page_url}")
+        driver.get(page_url)
+        time.sleep(2)
+
+        listing_jobs = extract_jobs_from_listing_page(driver)
+        for j in listing_jobs:
+            if j["url"] not in seen_urls:
+                found_jobs.append(j)
+                seen_urls.add(j["url"])
+
+    print(f"\nCollected {len(found_jobs)} jobs from listings")
+    print("Now scraping each job's detail page...\n")
+
+    final_jobs = []
+
+    for j in found_jobs:
+        try:
+            org, location = scrape_detail_page(driver, j["url"])
+            job = {
+                "title": j["title"],
+                "organization": org,
+                "location": location,
+                "url": j["url"],
+                "type": "N/A"
+            }
+            final_jobs.append(job)
+            print(f"✓ {j['title']} — {org}")
+
+        except Exception as e:
+            print(f"Error on {j['url']}: {e}")
 
     driver.quit()
 
-    print(f"\nTotal jobs scraped: {len(jobs)}")
+    # Write output
     with open(OUTPUT, "w") as f:
-        json.dump(jobs, f, indent=2)
-    print(f"Saved {len(jobs)} → {OUTPUT}")
+        json.dump(final_jobs, f, indent=2)
+
+    print(f"\nSaved {len(final_jobs)} jobs → {OUTPUT}")
+    print("\n=== DONE ===\n")
 
 
+# -------------------------
+# RUN
+# -------------------------
 if __name__ == "__main__":
     scrape_talent_market()
 

@@ -2,54 +2,56 @@ import requests
 from bs4 import BeautifulSoup
 import json
 
-def to_title_case(text):
-    return " ".join(word.capitalize() for word in text.lower().split())
+BASE_URL = "https://excelined.org/job-opportunities/"
 
 def scrape_excelined():
-    url = "https://excelined.org/job-opportunities/"
-    response = requests.get(url)
+    response = requests.get(BASE_URL, timeout=15)
     soup = BeautifulSoup(response.text, "html.parser")
 
     jobs = []
 
-    # This matches EXACTLY the structure you pasted
-    listings = soup.select("div.the-resource.resource-separator")
+    # Find the container with all job postings
+    job_blocks = soup.select(".the-resource")
 
-    for listing in listings:
-        left = listing.select_one("div.resource-left")
-        if not left:
+    for block in job_blocks:
+        title_el = block.select_one("h1")
+        link_el = block.select_one("a[href]")
+
+        if not title_el or not link_el:
             continue
 
-        # Title
-        title_el = left.find("h1")
-        if not title_el:
-            continue
+        title = title_el.get_text(strip=True)
+        url = link_el["href"]
+        company = "ExcelinEd (Foundation for Excellence in Education)"
 
-        raw_title = title_el.get_text(strip=True)
-        title = to_title_case(raw_title)
+        # Step 1: fetch job detail page to extract description
+        desc_text = ""
+        try:
+            job_detail = requests.get(url, timeout=15)
+            detail_soup = BeautifulSoup(job_detail.text, "html.parser")
 
-        # Job URL is the FIRST <a> inside resource-left
-        link_el = left.find("a", href=True)
-        if not link_el:
-            continue
-
-        job_url = link_el["href"]
-
-        # ExcelinEd does not provide a location field
-        location = ""
+            # Gutenberg content container
+            desc_container = detail_soup.select_one(".gutenberg")
+            if desc_container:
+                desc_text = desc_container.get_text(" ", strip=True)
+        except:
+            pass
 
         jobs.append({
             "title": title,
-            "company": "ExcelinEd (Foundation for Excellence in Education)",
-            "location": location,
-            "url": job_url,
-            "type": ""
+            "company": company,
+            "location": "",   # will be handled by UI
+            "url": url,
+            "type": "",
+            "description": desc_text   # NEW FIELD
         })
 
+    # Save JSON
     with open("public/jobs_excelined.json", "w") as f:
         json.dump(jobs, f, indent=2)
 
     print("ExcelinEd jobs saved to public/jobs_excelined.json")
 
-scrape_excelined()
+if __name__ == "__main__":
+    scrape_excelined()
 
