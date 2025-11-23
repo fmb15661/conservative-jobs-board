@@ -25,8 +25,8 @@ function App() {
     "/jobs_acc.json",
     "/jobs_amprinproj.json",
     "/jobs_ashbrook.json",
-    "/jobs_bri.json"
-  
+    "/jobs_bri.json",
+    "/jobs_commonwealth.json" 
   ];
 
   useEffect(() => {
