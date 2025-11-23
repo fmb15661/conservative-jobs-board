@@ -24,7 +24,9 @@ function App() {
     "/jobs_alec.json",
     "/jobs_acc.json",
     "/jobs_amprinproj.json",
-    "/jobs_ashbrook.json"   // ⭐ NEW SCRAPER
+    "/jobs_ashbrook.json",
+    "/jobs_bri.json"
+  
   ];
 
   useEffect(() => {
