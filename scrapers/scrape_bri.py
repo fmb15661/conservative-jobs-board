@@ -1,44 +1,40 @@
-import requests
+from playwright.sync_api import sync_playwright
 from bs4 import BeautifulSoup
 import json
 import os
 
 def scrape_bri():
-    url = "https://billofrightsinstitute.org/about-bri/join-our-team"
     org = "Bill of Rights Institute"
+    url = "https://billofrightsinstitute.org/about-bri/join-our-team"
 
-    print(f"Scraping {org}...")
+    print(f"Scraping {org} (JavaScript-rendered page)…")
 
-    response = requests.get(url, timeout=20)
-    response.raise_for_status()
+    with sync_playwright() as p:
+        browser = p.chromium.launch(headless=True)
+        page = browser.new_page()
+        page.goto(url, wait_until="networkidle")
 
-    soup = BeautifulSoup(response.text, "html.parser")
+        html = page.content()
+        browser.close()
+
+    soup = BeautifulSoup(html, "html.parser")
 
     jobs = []
 
-    # Each job appears inside: <div class="mb-20 border rounded ...">
-    job_cards = soup.select("div.mb-20.border.rounded")
+    # EACH JOB CARD
+    cards = soup.select("div.mb-20.border.rounded")
 
-    for card in job_cards:
-        # Extract job title
+    for card in cards:
+        # Title
         title_tag = card.find("h3")
-        if not title_tag:
-            continue
-        title = title_tag.get_text(strip=True)
+        title = title_tag.get_text(strip=True) if title_tag else "N/A"
 
-        # There is no direct job link — the "Apply Now" button
-        # opens a modal, so we link to the main job page
-        job_url = url  # fallback
+        # Location
+        loc_tag = card.find("span", string=lambda t: t and "Location:" in t)
+        location = loc_tag.parent.get_text(strip=True).replace("Location:", "").strip() if loc_tag else "N/A"
 
-        # Extract location
-        location = "N/A"
-        loc_p = card.find("p", string=lambda t: t and "Location:" in t)
-        if loc_p:
-            text = loc_p.get_text(strip=True)
-            try:
-                location = text.split("Location:")[1].strip()
-            except:
-                pass
+        # URL → no URL in markup, use page URL as fallback
+        job_url = url
 
         jobs.append({
             "title": title,
@@ -47,7 +43,7 @@ def scrape_bri():
             "url": job_url
         })
 
-    # Write JSON to frontend/public
+    # Save JSON
     output_path = os.path.join(
         os.path.dirname(__file__),
         "../frontend/public/jobs_bri.json"
@@ -58,7 +54,6 @@ def scrape_bri():
         json.dump(jobs, f, indent=2)
 
     print(f"Saved {len(jobs)} BRI job(s) to {output_path}")
-
 
 if __name__ == "__main__":
     scrape_bri()
