@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 
 function App() {
   const [jobs, setJobs] = useState([]);
-  const [sortColumn, setSortColumn] = useState("title");
-  const [sortDirection, setSortDirection] = useState("asc");
+  const [sortConfig, setSortConfig] = useState({
+    key: "organization",
+    direction: "asc",
+  });
 
+  // ALL JOB SOURCES (NOW INCLUDING AMPRINPROJ)
   const sources = [
     "/jobs_talentmarket.json",
     "/jobs_yaf.json",
@@ -21,9 +24,10 @@ function App() {
     "/jobs_cei.json",
     "/jobs_tppf.json",
     "/jobs_leadership_institute.json",
-    "/jobs_alec.json",
     "/jobs_crc.json",
-    "/jobs_acc.json"
+    "/jobs_alec.json",
+    "/jobs_acc.json",
+    "/jobs_amprinproj.json"   // ⭐ NEW — AMERICAN PRINCIPLES PROJECT
   ];
 
   useEffect(() => {
@@ -34,126 +38,74 @@ function App() {
         try {
           const res = await fetch(src);
           if (!res.ok) continue;
-
           const data = await res.json();
-          if (!Array.isArray(data)) continue;
 
-          data.forEach((raw) => {
-            const normalized = normalizeJob(raw);
-            if (normalized && normalized.title && normalized.url) {
-              collected.push(normalized);
-            }
-          });
+          for (const job of data) {
+            collected.push({
+              title: job.title || "N/A",
+              organization:
+                job.organization ||
+                job.company ||
+                "N/A",
+              location: job.location || "N/A",
+              link: job.link || job.url || "#",
+              type: job.type || "N/A",
+            });
+          }
         } catch (err) {
-          console.error("Error loading: ", src, err);
+          console.error("Error loading", src, err);
         }
       }
 
-      setJobs(dedupeJobs(collected));
+      setJobs(collected);
     }
 
     loadJobs();
   }, []);
 
-  function normalizeText(text) {
-    if (!text) return "";
-    return text
-      .normalize("NFKD")
-      .replace(/[\u2018\u2019\u201C\u201D]/g, "'")
-      .replace(/\s+/g, " ")
-      .trim()
-      .toLowerCase();
-  }
-
-  function normalizeJob(job) {
-    const title = (job.title || "").toString().trim();
-
-    // FIX: allow "company" as fallback for "organization"
-    const organization =
-      job.organization?.toString().trim() ||
-      job.company?.toString().trim() ||
-      "N/A";
-
-    const location =
-      (job.location || job.city || "").toString().trim() || "N/A";
-
-    const url =
-      (job.url || job.link || "").toString().trim();
-
-    const type =
-      (job.type || job.job_type || "").toString().trim() || "N/A";
-
-    return { title, organization, location, url, type };
-  }
-
-  function dedupeJobs(jobs) {
-    const seen = new Set();
-    const clean = [];
-
-    for (const job of jobs) {
-      const key = normalizeText(job.url);
-
-      if (!seen.has(key)) {
-        seen.add(key);
-        clean.push(job);
-      }
+  function sortBy(key) {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
     }
-    return clean;
+    setSortConfig({ key, direction });
   }
 
-  function sortJobs(jobs) {
-    return [...jobs].sort((a, b) => {
-      const aVal = (a[sortColumn] || "").toString().toLowerCase();
-      const bVal = (b[sortColumn] || "").toString().toLowerCase();
-
-      if (aVal < bVal) return sortDirection === "asc" ? -1 : 1;
-      if (aVal > bVal) return sortDirection === "asc" ? 1 : -1;
-      return 0;
-    });
-  }
-
-  function handleSort(column) {
-    if (sortColumn === column) {
-      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc");
-    }
-  }
-
-  const sortedJobs = sortJobs(jobs);
+  const sortedJobs = [...jobs].sort((a, b) => {
+    const x = a[sortConfig.key] || "";
+    const y = b[sortConfig.key] || "";
+    return sortConfig.direction === "asc"
+      ? x.localeCompare(y)
+      : y.localeCompare(x);
+  });
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Conservative Jobs Board</h1>
+    <div className="App">
+      <h1>Conservative Jobs Board</h1>
 
-      <table className="min-w-full border-collapse border border-gray-400">
+      <table>
         <thead>
-          <tr className="bg-gray-200">
-            {["title", "organization", "location", "type"].map((col) => (
-              <th
-                key={col}
-                className="border border-gray-400 px-2 py-1 cursor-pointer"
-                onClick={() => handleSort(col)}
-              >
-                {col.charAt(0).toUpperCase() + col.slice(1)}
-                {sortColumn === col ? (sortDirection === "asc" ? " ▲" : " ▼") : ""}
-              </th>
-            ))}
+          <tr>
+            <th onClick={() => sortBy("organization")}>Organization</th>
+            <th onClick={() => sortBy("title")}>Title</th>
+            <th onClick={() => sortBy("location")}>Location</th>
+            <th onClick={() => sortBy("type")}>Type</th>
+            <th>Link</th>
           </tr>
         </thead>
 
         <tbody>
           {sortedJobs.map((job, index) => (
-            <tr key={index} className="hover:bg-gray-100">
-              <td className="border border-gray-400 px-2 py-1">
-                <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
-                  {job.title}
+            <tr key={index}>
+              <td>{job.organization}</td>
+              <td>{job.title}</td>
+              <td>{job.location}</td>
+              <td>{job.type}</td>
+              <td>
+                <a href={job.link} target="_blank" rel="noopener noreferrer">
+                  Apply
                 </a>
               </td>
-              <td className="border border-gray-400 px-2 py-1">{job.organization}</td>
-              <td className="border border-gray-400 px-2 py-1">{job.location}</td>
-              <td className="border border-gray-400 px-2 py-1">{job.type}</td>
             </tr>
           ))}
         </tbody>
