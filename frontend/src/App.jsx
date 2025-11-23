@@ -5,9 +5,26 @@ function App() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: "asc" });
 
   const sources = [
+    "/jobs_talentmarket.json",
+    "/jobs_yaf.json",
+    "/jobs_afpi.json",
+    "/jobs_hudson.json",
+    "/jobs_cato.json",
+    "/jobs_plf.json",
+    "/jobs_ntu.json",
+    "/jobs_acton.json",
+    "/jobs_aier.json",
+    "/jobs_excelined.json",
+    "/jobs_claremont.json",
+    "/jobs_heritage.json",
+    "/jobs_cei.json",
+    "/jobs_tppf.json",
+    "/jobs_leadership_institute.json",
     "/jobs_crc.json",
+    "/jobs_alec.json",
+    "/jobs_acc.json",
     "/jobs_amprinproj.json",
-    "/jobs_ashbrook.json"   // ⭐ NEW SOURCE
+    "/jobs_ashbrook.json"   // ⭐ NEW SCRAPER
   ];
 
   useEffect(() => {
@@ -88,7 +105,12 @@ function App() {
               <td className="border px-4 py-2">{job.organization}</td>
               <td className="border px-4 py-2">{job.location}</td>
               <td className="border px-4 py-2">
-                <a href={job.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">
+                <a
+                  href={job.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 underline"
+                >
                   Apply
                 </a>
               </td>
