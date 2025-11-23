@@ -49,6 +49,10 @@ def scrape_cato():
         loc_tag = card.select_one(".location-column span.job-item-normal")
         location = loc_tag.get_text(strip=True) if loc_tag else ""
 
+	# Fix Cato’s weird “Hybrid - Cato Institute Headquarters” string
+	if "Hybrid - Cato Institute Headquarters" in location:
+    	location = "Hybrid/Washington, D.C."
+
         jobs.append({
             "title": title,
             "organization": org,
