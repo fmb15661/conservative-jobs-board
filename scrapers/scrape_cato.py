@@ -18,7 +18,6 @@ def scrape_cato():
         page = browser.new_page()
         page.goto(paylocity_url, wait_until="domcontentloaded")
 
-        # Wait for the job rows to load inside the Paylocity page
         try:
             page.wait_for_selector("div.row.job-listing-job-item", timeout=10000)
         except PlaywrightTimeoutError:
@@ -31,26 +30,30 @@ def scrape_cato():
 
     jobs = []
 
-    # Each job row looks like:
-    # <div class="row job-listing-job-item"> ... </div>
     cards = soup.select("div.row.job-listing-job-item")
 
     for card in cards:
-        # Title
         title_tag = card.select_one(".job-item-title a")
         title = title_tag.get_text(strip=True) if title_tag else "N/A"
 
-        # URL (make absolute)
         link = title_tag["href"] if title_tag else ""
         if link.startswith("/"):
             link = base_url + link
 
-        # Location
         loc_tag = card.select_one(".location-column span.job-item-normal")
         location = loc_tag.get_text(strip=True) if loc_tag else ""
 
-        # 🔧 Simple display fix: normalize this specific location text
-        if location == "Hybrid - Cato Institute Headquarters":
+        # ----------------------------
+        # DISPLAY-ONLY ADJUSTMENTS
+        # ----------------------------
+
+        # Comic Artists job → "Remote"
+        if "Comic Artists" in title:
+            location = "Remote"
+
+        # Research Associate – Immigration Policy job → Hybrid/Washington, D.C.
+        if "Research Associate – Immigration Policy" in title or \
+           "Research Associate - Immigration Policy" in title:
             location = "Hybrid/Washington, D.C."
 
         jobs.append({
@@ -60,7 +63,6 @@ def scrape_cato():
             "url": link
         })
 
-    # Save to frontend/public/jobs_cato.json
     output_path = os.path.join(
         os.path.dirname(__file__),
         "../frontend/public/jobs_cato.json"
