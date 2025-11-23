@@ -27,7 +27,6 @@ def scrape_cato():
         browser.close()
 
     soup = BeautifulSoup(html, "html.parser")
-
     jobs = []
 
     cards = soup.select("div.row.job-listing-job-item")
@@ -43,15 +42,21 @@ def scrape_cato():
         loc_tag = card.select_one(".location-column span.job-item-normal")
         location = loc_tag.get_text(strip=True) if loc_tag else ""
 
-        # ----------------------------
-        # DISPLAY-ONLY ADJUSTMENTS
-        # ----------------------------
+        # --------------------------------------------------------
+        # 1. GLOBAL STANDARDIZATION (for all other Cato jobs)
+        # --------------------------------------------------------
+        if "Hybrid - Cato Institute Headquarters" in location:
+            location = "Hybrid/Washington, D.C."
 
-        # Comic Artists job → "Remote"
+        if "Cato Institute - Headquarters" in location:
+            location = "Washington, D.C."
+
+        # --------------------------------------------------------
+        # 2. SPECIFIC JOB LOCATION OVERRIDES
+        # --------------------------------------------------------
         if "Comic Artists" in title:
             location = "Remote"
 
-        # Research Associate – Immigration Policy job → Hybrid/Washington, D.C.
         if "Research Associate – Immigration Policy" in title or \
            "Research Associate - Immigration Policy" in title:
             location = "Hybrid/Washington, D.C."
