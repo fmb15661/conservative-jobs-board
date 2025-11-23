@@ -21,7 +21,6 @@ def scrape_bri():
 
     jobs = []
 
-    # Select each job card
     cards = soup.select("div.mb-20.border.rounded")
 
     for card in cards:
@@ -29,20 +28,21 @@ def scrape_bri():
         title_tag = card.find("h3")
         title = title_tag.get_text(strip=True) if title_tag else "N/A"
 
-        # Location MUST always be blank
-        location = ""
+        # Location: ignore the “Bill of Rights Institute (BRI)” text
+        # Use D.C. for these postings
+        location = "Washington, D.C."
 
-        # URL fallback
+        # URL (fallback is page URL)
         job_url = url
 
         jobs.append({
             "title": title,
             "organization": org,
-            "location": location,   # **always blank**
+            "location": location,   # always DC for now
             "url": job_url
         })
 
-    # Save JSON
+    # Write JSON
     output_path = os.path.join(
         os.path.dirname(__file__),
         "../frontend/public/jobs_bri.json"
@@ -52,9 +52,8 @@ def scrape_bri():
     with open(output_path, "w") as f:
         json.dump(jobs, f, indent=2)
 
-    print(f"Saved {len(jobs)} BRI job(s) with blank locations to {output_path}")
+    print(f"Saved {len(jobs)} corrected-location BRI job(s) to {output_path}")
 
 
 if __name__ == "__main__":
     scrape_bri()
-
