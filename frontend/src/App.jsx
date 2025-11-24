@@ -24,7 +24,11 @@ function App() {
     "/jobs_alec.json",
     "/jobs_acc.json",
     "/jobs_amprinproj.json",
-    "/jobs_commonwealth.json"
+    "/jobs_ashbrook.json",
+    "/jobs_bri.json",
+    "/jobs_commonwealth.json",
+    // FAIR manual JSON (since scraper is blocked by Cloudflare)
+    "/jobs_fair_manual.json",
   ];
 
   const normalizeOrg = (org) => {
@@ -63,34 +67,40 @@ function App() {
 
           all = [...all, ...normalized];
         } catch (e) {
-          console.error("Error fetching", src);
+          console.error("Error fetching", src, e);
         }
       }
 
       // === CATO Overrides (baseline preserved) ===
       all = all.map((job) => {
+        // Comic Artists job should show Remote
         if (
           job.organization === "Cato Institute" &&
           job.title.includes("Comic Artists")
         ) {
           return { ...job, location: "Remote" };
         }
+
+        // Any Cato job whose location is exactly "Cato Institute - Headquarters"
         if (
           job.organization === "Cato Institute" &&
           job.location === "Cato Institute - Headquarters"
         ) {
           return { ...job, location: "Hybrid/Washington, D.C." };
         }
+
+        // Any Cato job whose location is "Hybrid - Cato Institute Headquarters"
         if (
           job.organization === "Cato Institute" &&
           job.location === "Hybrid - Cato Institute Headquarters"
         ) {
           return { ...job, location: "Hybrid/Washington, D.C." };
         }
+
         return job;
       });
 
-      // === Commonwealth Foundation Overrides (ONLY CHANGE ADDED) ===
+      // === Commonwealth Foundation Overrides ===
       all = all.map((job) => {
         if (
           job.organization === "Commonwealth Foundation" &&
