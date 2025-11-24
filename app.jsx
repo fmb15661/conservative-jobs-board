@@ -25,8 +25,7 @@ function App() {
     "/jobs_acc.json",
     "/jobs_amprinproj.json",
     "/jobs_commonwealth.json",
-
-    // ✅ NEW FAIR MANUAL FILE ADDED HERE
+    "/jobs_fee.json",
     "/jobs_fair_manual.json"
   ];
 
