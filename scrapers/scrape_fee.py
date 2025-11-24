@@ -22,32 +22,51 @@ def scrape_fee():
 
     jobs = []
 
-    # Look for <p><a><strong>Title</strong></a> – Location text inside <p>
+    # Find paragraphs that contain job links
     for p in soup.select("p"):
-        link = p.find("a")
-        strong = p.find("strong")
+        # Find ALL bolded titles inside this <p>
+        links = p.find_all("a")
+        strongs = p.find_all("strong")
 
-        if not link or not strong:
+        if not links or not strongs:
             continue
 
-        title = strong.get_text(strip=True)
-        href = link["href"]
+        # Extract full text of paragraph to parse locations
+        full_text = p.get_text(" ", strip=True)
 
-        text = p.get_text(" ", strip=True)
+        # Iterate through each job in this <p>
+        for i in range(len(strongs)):
+            title = strongs[i].get_text(strip=True)
+            href = links[i]["href"]
 
-        # Detect location
-        location = ""
-        if "Virtual" in text:
-            location = "Remote"
-        elif "Atlanta preferred" in text:
-            location = "Hybrid/Atlanta, GA"
+            # Find the substring AFTER the title
+            idx = full_text.find(title)
+            remaining = full_text[idx + len(title):]
 
-        jobs.append({
-            "title": title,
-            "organization": org,
-            "location": location,
-            "url": href
-        })
+            # Extract location text up to next title (if any)
+            if i + 1 < len(strongs):
+                next_title = strongs[i+1].get_text(strip=True)
+                next_idx = remaining.find(next_title)
+                location_text = remaining[:next_idx]
+            else:
+                location_text = remaining
+
+            location_text = location_text.replace("–", "").strip()
+
+            # Normalize known location formats
+            if "Virtual" in location_text:
+                location = "Remote"
+            elif "Atlanta" in location_text:
+                location = "Hybrid/Atlanta, GA"
+            else:
+                location = location_text
+
+            jobs.append({
+                "title": title,
+                "organization": org,
+                "location": location,
+                "url": href
+            })
 
     # Write JSON file to frontend/public
     output_path = os.path.abspath("../frontend/public/jobs_fee.json")
