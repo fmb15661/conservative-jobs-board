@@ -27,25 +27,18 @@ function App() {
     "/jobs_ashbrook.json",
     "/jobs_bri.json",
     "/jobs_commonwealth.json",
-    // FAIR manual JSON (since scraper is blocked by Cloudflare)
-    "/jobs_fair_manual.json",
+    "/jobs_fee.json",            //  <——— FEE IS NOW HERE
+    "/jobs_fair_manual.json"     // FAIR manual
   ];
 
   const normalizeOrg = (org) => {
     if (!org) return "N/A";
-    return org
-      .replace(/–/g, "-")
-      .replace(/—/g, "-")
-      .trim();
+    return org.replace(/–/g, "-").replace(/—/g, "-").trim();
   };
 
   const normalizeLocation = (loc) => {
     if (!loc) return "";
-    return loc
-      .replace(/\s+/g, " ")
-      .replace(/–/g, "-")
-      .replace(/—/g, "-")
-      .trim();
+    return loc.replace(/\s+/g, " ").replace(/–/g, "-").replace(/—/g, "-").trim();
   };
 
   useEffect(() => {
@@ -71,36 +64,21 @@ function App() {
         }
       }
 
-      // === CATO Overrides (baseline preserved) ===
+      // === CATO FIXES ===
       all = all.map((job) => {
-        // Comic Artists job should show Remote
-        if (
-          job.organization === "Cato Institute" &&
-          job.title.includes("Comic Artists")
-        ) {
+        if (job.organization === "Cato Institute" && job.title.includes("Comic Artists")) {
           return { ...job, location: "Remote" };
         }
-
-        // Any Cato job whose location is exactly "Cato Institute - Headquarters"
-        if (
-          job.organization === "Cato Institute" &&
-          job.location === "Cato Institute - Headquarters"
-        ) {
+        if (job.organization === "Cato Institute" && job.location === "Cato Institute - Headquarters") {
           return { ...job, location: "Hybrid/Washington, D.C." };
         }
-
-        // Any Cato job whose location is "Hybrid - Cato Institute Headquarters"
-        if (
-          job.organization === "Cato Institute" &&
-          job.location === "Hybrid - Cato Institute Headquarters"
-        ) {
+        if (job.organization === "Cato Institute" && job.location === "Hybrid - Cato Institute Headquarters") {
           return { ...job, location: "Hybrid/Washington, D.C." };
         }
-
         return job;
       });
 
-      // === Commonwealth Foundation Overrides ===
+      // === Commonwealth FIX ===
       all = all.map((job) => {
         if (
           job.organization === "Commonwealth Foundation" &&
@@ -130,6 +108,7 @@ function App() {
 
   const sortedJobs = [...jobs].sort((a, b) => {
     if (!sortConfig.key) return 0;
+
     const aVal = a[sortConfig.key] || "";
     const bVal = b[sortConfig.key] || "";
 
@@ -153,7 +132,7 @@ function App() {
         <div key={idx} className="grid grid-cols-4 gap-4 border-b py-2">
           <div>{job.title}</div>
           <div>{job.organization}</div>
-          <div>{job.location || ""}</div>
+          <div>{job.location}</div>
           <div>
             {job.url ? (
               <a
