@@ -27,9 +27,10 @@ function App() {
     "/jobs_ashbrook.json",
     "/jobs_bri.json",
     "/jobs_commonwealth.json",
-    "/jobs_fee.json",             // FEE
-    "/jobs_fair_manual.json",     // FAIR manual
-    "/jobs_fire.json"             // 🔥 FIRE (new)
+    "/jobs_fee.json",
+    "/jobs_fair_manual.json",
+    "/jobs_fire.json",
+    "/jobs_gingrich360.json"      // 🔥 NEW — Gingrich360 manual internship
   ];
 
   const normalizeOrg = (org) => {
