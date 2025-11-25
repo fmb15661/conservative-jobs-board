@@ -27,8 +27,9 @@ function App() {
     "/jobs_ashbrook.json",
     "/jobs_bri.json",
     "/jobs_commonwealth.json",
-    "/jobs_fee.json",            //  <——— FEE IS NOW HERE
-    "/jobs_fair_manual.json"     // FAIR manual
+    "/jobs_fee.json",             // FEE
+    "/jobs_fair_manual.json",     // FAIR manual
+    "/jobs_fire.json"             // 🔥 FIRE (new)
   ];
 
   const normalizeOrg = (org) => {
