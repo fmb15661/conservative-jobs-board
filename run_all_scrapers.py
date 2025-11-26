@@ -1,55 +1,62 @@
-import os
 import subprocess
 import sys
+import os
 
-SCRAPER_DIR = "scrapers"
+# === Correct project base directory ===
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def run_scraper(scraper_path):
-    print(f"▶️ Running {scraper_path} ...")
-    result = subprocess.run(
-        [sys.executable, scraper_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-    # Print standard output
-    if result.stdout:
-        print(result.stdout)
-    # Print any errors
-    if result.stderr:
-        print("⚠️ Errors:")
-        print(result.stderr)
-    print("----------------------------------------------------")
+# === Correct output directory (React public folder) ===
+PUBLIC_DIR = os.path.join(BASE_DIR, "frontend", "public")
 
-def main():
-    print("=========================================")
-    print("     CONSERVATIVE JOBS BOARD SCRAPERS    ")
-    print("=========================================\n")
+print("Running ALL scrapers...")
+print("Scraper directory:", BASE_DIR)
+print("Output directory:", PUBLIC_DIR, "\n")
 
-    # Look for all scraper_*.py files in scrapers/ folder
-    if not os.path.isdir(SCRAPER_DIR):
-        print(f"❌ Folder '{SCRAPER_DIR}' not found.")
+def run(script):
+    path = os.path.join(BASE_DIR, script)
+
+    print(f"--- Running {script} ---")
+
+    if not os.path.exists(path):
+        print(f"❌ NOT FOUND: {script}\n")
         return
 
-    files = sorted(os.listdir(SCRAPER_DIR))
-    scrapers = [f for f in files if f.startswith("scraper_") and f.endswith(".py")]
+    try:
+        subprocess.run([sys.executable, path], check=True)
+        print(f"✓ Finished {script}\n")
+    except subprocess.CalledProcessError as e:
+        print(f"✗ ERROR in {script}: {e}\n")
 
-    if not scrapers:
-        print(f"❌ No scraper_*.py files found in '{SCRAPER_DIR}'.")
-        return
+# === FULL LIST OF SCRAPERS ===
+SCRAPERS = [
+    "scraper_talentmarket.py",
+    "scraper_yaf_selenium.py",
+    "scraper_afpi.py",
+    "scraper_hudson.py",
+    "scraper_cato.py",
+    "scraper_plf.py",
+    "scraper_ntu.py",
+    "scraper_acton.py",
+    "scraper_aier.py",
+    "scraper_excelined.py",
+    "scraper_claremont.py",
+    "scraper_heritage.py",
+    "scraper_cei.py",
+    "scraper_tppf.py",
+    "scraper_leadership_institute.py",
+    "scraper_crc.py",
+    "scraper_alec.py",
+    "scraper_acc.py",
+    "scraper_amprinproj.py",
+    "scrape_ashbrook.py",
+    "scrape_bri.py",
+    "scrape_commonwealth.py",
+    "scrape_fee.py",
+    "scrape_fire.py",
+]
 
-    print(f"Found {len(scrapers)} scrapers:\n")
-    for s in scrapers:
-        print(f"  - {s}")
-    print("\nStarting runs...\n")
+for script in SCRAPERS:
+    run(script)
 
-    for scraper in scrapers:
-        path = os.path.join(SCRAPER_DIR, scraper)
-        run_scraper(path)
-
-    print("\n🎉 ALL SCRAPERS FINISHED!")
-    print("All JSON files should now be updated.\n")
-
-if __name__ == "__main__":
-    main()
+print("\n=== ALL SCRAPERS COMPLETE ===")
 
