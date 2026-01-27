@@ -1,17 +1,24 @@
 [
   {
-    "title": "Front Office Manager",
+    "title": "Director of Marketing and Communications",
     "organization": "Young America's Foundation",
     "location": "Reston, Virginia",
     "type": "Policy",
-    "link": "https://yaf.org/careers/front-office-manager/"
+    "link": "https://yaf.org/careers/director-of-marketing-and-communications/"
   },
   {
-    "title": "Event Coordinator for the Reagan Ranch Center",
+    "title": "National Conference Director",
     "organization": "Young America's Foundation",
-    "location": "Santa Barbara, CA",
+    "location": "Reston, Virginia",
     "type": "Policy",
-    "link": "https://yaf.org/careers/event-coordinator-reagan-ranch/"
+    "link": "https://yaf.org/careers/national-conference-director/"
+  },
+  {
+    "title": "Program Coordinator, National Journalism Center",
+    "organization": "Young America's Foundation",
+    "location": "Reston, Virginia",
+    "type": "Policy",
+    "link": "https://yaf.org/careers/njc-program-coordinator/"
   },
   {
     "title": "Program Officer for Outreach, National Journalism Center",
@@ -21,11 +28,18 @@
     "link": "https://yaf.org/careers/program-officer-njc/"
   },
   {
-    "title": "Program Coordinator, National Journalism Center",
+    "title": "Digital Media Coordinator",
     "organization": "Young America's Foundation",
     "location": "Reston, Virginia",
     "type": "Policy",
-    "link": "https://yaf.org/careers/njc-program-coordinator/"
+    "link": "https://yaf.org/careers/digital-media-coordinator/"
+  },
+  {
+    "title": "Event Coordinator for the Reagan Ranch Center",
+    "organization": "Young America's Foundation",
+    "location": "Santa Barbara, CA",
+    "type": "Policy",
+    "link": "https://yaf.org/careers/event-coordinator-reagan-ranch/"
   },
   {
     "title": "Conservative School Outreach Coordinator",
@@ -70,17 +84,10 @@
     "link": "https://yaf.org/careers/development-officer-headquarters/"
   },
   {
-    "title": "Campus Recruitment",
+    "title": "Program Officer for Campus Advancement",
     "organization": "Young America's Foundation",
     "location": "Reston, VA",
     "type": "Policy",
     "link": "https://yaf.org/careers/campus-recruitment/"
-  },
-  {
-    "title": "Program Officer for Marketing",
-    "organization": "Young America's Foundation",
-    "location": "Reston, VA",
-    "type": "Policy",
-    "link": "https://yaf.org/careers/program-officer-for-marketing/"
   }
 ]

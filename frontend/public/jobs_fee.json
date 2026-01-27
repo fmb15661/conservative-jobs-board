@@ -1,20 +1,20 @@
 [
   {
-    "title": "International Programs Manager",
-    "organization": "Foundation for Economic Education (FEE)",
-    "location": "Remote",
-    "url": "https://fee.org/about/fee-ipm"
-  },
-  {
     "title": "Senior Project Manager",
     "organization": "Foundation for Economic Education (FEE)",
     "location": "Hybrid/Atlanta, GA",
     "url": "https://fee.org/about/fee-spm-2/"
   },
   {
-    "title": "Director of Marketing & Communications",
+    "title": "Director of Donor Engagement",
     "organization": "Foundation for Economic Education (FEE)",
-    "location": "Hybrid/Atlanta, GA",
-    "url": "https://fee.org/about/fee-dmc/"
+    "location": "Remote",
+    "url": "https://fee.org/about/fee-dode/"
+  },
+  {
+    "title": "Director of Donor Communications",
+    "organization": "Foundation for Economic Education (FEE)",
+    "location": "Remote",
+    "url": "https://fee.org/about/fee-dodc/"
   }
 ]

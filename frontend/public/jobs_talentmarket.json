@@ -1,11 +1,339 @@
 [
   {
     "title": "Development Associate",
-    "organization": "American Conservation Coalition Washington, DC or",
+    "organization": "Illinois Policy Institute",
+    "location": "Chicago, IL",
+    "type": "N/A",
+    "date_posted": "January 26, 2026",
+    "link": "https://talentmarket.org/job-opening/ipi-development-associate/"
+  },
+  {
+    "title": "Director of Events",
+    "organization": "Leadership Institute",
+    "location": "Arlington, VA",
+    "type": "N/A",
+    "date_posted": "January 23, 2026",
+    "link": "https://talentmarket.org/job-opening/director-of-events/"
+  },
+  {
+    "title": "Director of Programs",
+    "organization": "Buckley Institute New Haven, CT or",
+    "location": "New Haven, CT or Virtual",
+    "type": "N/A",
+    "date_posted": "January 23, 2026",
+    "link": "https://talentmarket.org/job-opening/director-of-programs/"
+  },
+  {
+    "title": "Operations Specialist",
+    "organization": "Foundation for Government Accountability",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 23, 2026",
+    "link": "https://talentmarket.org/job-opening/fga-operations-specialist/"
+  },
+  {
+    "title": "Senior Foundation Relations Manager",
+    "organization": "Goldwater Institute Phoenix, AZ or",
+    "location": "Phoenix, AZ or Virtual",
+    "type": "N/A",
+    "date_posted": "January 22, 2026",
+    "link": "https://talentmarket.org/job-opening/senior-foundation-relations-manager/"
+  },
+  {
+    "title": "Social Media Marketer",
+    "organization": "MediaPedia",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 20, 2026",
+    "link": "https://talentmarket.org/job-opening/social-media-marketer/"
+  },
+  {
+    "title": "Director of Grants",
+    "organization": "Reason Foundation Washington, DC or",
     "location": "Washington, DC or Virtual",
     "type": "N/A",
-    "date_posted": "December 4, 2025",
-    "link": "https://talentmarket.org/job-opening/acc-development-associate/"
+    "date_posted": "January 20, 2026",
+    "link": "https://talentmarket.org/job-opening/reason-director-grants/"
+  },
+  {
+    "title": "Media & Communications Manager",
+    "organization": "Daniels Fund Denver",
+    "location": "Denver, CO",
+    "type": "N/A",
+    "date_posted": "January 19, 2026",
+    "link": "https://talentmarket.org/job-opening/danielsfundmediacommsmgr/"
+  },
+  {
+    "title": "Communications Director",
+    "organization": "Opportunity Arkansas Foundation Conway, AR or Virtual in Southern States",
+    "location": "Conway, AR or Virtual in Southern States",
+    "type": "N/A",
+    "date_posted": "January 19, 2026",
+    "link": "https://talentmarket.org/job-opening/oa-communications-director/"
+  },
+  {
+    "title": "Program Manager, Dissident Project",
+    "organization": "Young Voices New York, NY: Washington, DC or",
+    "location": "New York, NY: Washington, DC or Virtual",
+    "type": "N/A",
+    "date_posted": "January 16, 2026",
+    "link": "https://talentmarket.org/job-opening/yv-program-manager-dissident-project/"
+  },
+  {
+    "title": "Attorney",
+    "organization": "Liberty Justice Center",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 15, 2026",
+    "link": "https://talentmarket.org/job-opening/ljcattorney/"
+  },
+  {
+    "title": "Director of Marketing and Communications",
+    "organization": "Young America\u2019s Foundation Reston, Virginia",
+    "location": "Reston, Virginia",
+    "type": "N/A",
+    "date_posted": "January 15, 2026",
+    "link": "https://talentmarket.org/job-opening/yaf-marcoms/"
+  },
+  {
+    "title": "Managing Editor",
+    "organization": "Competitive Enterprise Institute",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "January 14, 2026",
+    "link": "https://talentmarket.org/job-opening/managing-editor-cei/"
+  },
+  {
+    "title": "Manager, Executive Operations",
+    "organization": "Open the Books Washington, DC; Frederick, MD; or",
+    "location": "Washington, DC; Frederick, MD; or Virtual",
+    "type": "N/A",
+    "date_posted": "January 14, 2026",
+    "link": "https://talentmarket.org/job-opening/otb-executive-ops/"
+  },
+  {
+    "title": "National Conference Director",
+    "organization": "Young America\u2019s Foundation Reston",
+    "location": "Reston, VA",
+    "type": "N/A",
+    "date_posted": "January 14, 2026",
+    "link": "https://talentmarket.org/job-opening/conferencedirectoryaf/"
+  },
+  {
+    "title": "Quantitative Policy Analyst",
+    "organization": "Competitive Enterprise Institute Washington, D.C.",
+    "location": "Washington, D.C.",
+    "type": "N/A",
+    "date_posted": "January 13, 2026",
+    "link": "https://talentmarket.org/job-opening/cei-quantitative-policy-analyst/"
+  },
+  {
+    "title": "Communications and Membership Manager",
+    "organization": "Society for the Rule of Law",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "January 12, 2026",
+    "link": "https://talentmarket.org/job-opening/communications-and-membership-manager/"
+  },
+  {
+    "title": "Senior Fundraising Director",
+    "organization": "Open Therapy Institute",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 12, 2026",
+    "link": "https://talentmarket.org/job-opening/oti-senior-fundraising-director/"
+  },
+  {
+    "title": "Outreach and Marketing Director",
+    "organization": "Open Therapy Institute",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 12, 2026",
+    "link": "https://talentmarket.org/job-opening/oti-outreach-and-marketing-director/"
+  },
+  {
+    "title": "Operations Associate & Executive Assistant",
+    "organization": "Mercatus Center at George Mason University Fairfax",
+    "location": "Fairfax, VA",
+    "type": "N/A",
+    "date_posted": "January 12, 2026",
+    "link": "https://talentmarket.org/job-opening/mercatus-operations-associate/"
+  },
+  {
+    "title": "Director of Marketing and Brand Strategy",
+    "organization": "Foundation for Research on Equal Opportunity",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 11, 2026",
+    "link": "https://talentmarket.org/job-opening/director-of-marketing-and-brand-strategy/"
+  },
+  {
+    "title": "Database Administrator",
+    "organization": "Illinois Policy Institute",
+    "location": "Chicago, IL",
+    "type": "N/A",
+    "date_posted": "January 9, 2026",
+    "link": "https://talentmarket.org/job-opening/ipi-database-administrator/"
+  },
+  {
+    "title": "Director of Donor Communications",
+    "organization": "Foundation for Economic Education",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 9, 2026",
+    "link": "https://talentmarket.org/job-opening/director-of-donor-comms-fee/"
+  },
+  {
+    "title": "Data and Technology Coordinator",
+    "organization": "Horatio Alger Association Alexandria",
+    "location": "Alexandria, VA",
+    "type": "N/A",
+    "date_posted": "January 8, 2026",
+    "link": "https://talentmarket.org/job-opening/data-and-technology-coordinator/"
+  },
+  {
+    "title": "Marketing Coordinator",
+    "organization": "Cato Institute",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "January 8, 2026",
+    "link": "https://talentmarket.org/job-opening/cato-marketing-coordinator/"
+  },
+  {
+    "title": "Marketing Project Manager",
+    "organization": "Cato Institute",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "January 8, 2026",
+    "link": "https://talentmarket.org/job-opening/cato-marketing-project-manager/"
+  },
+  {
+    "title": "Development Officer",
+    "organization": "Center for American Liberty",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 8, 2026",
+    "link": "https://talentmarket.org/job-opening/development-officer-cal/"
+  },
+  {
+    "title": "Development Associate",
+    "organization": "The Fund for American Studies",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "January 7, 2026",
+    "link": "https://talentmarket.org/job-opening/development-associate/"
+  },
+  {
+    "title": "Editor-in-Chief/Publisher",
+    "organization": "Shuchman Philanthropies, Inc./Undergraduate Course Guide",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 7, 2026",
+    "link": "https://talentmarket.org/job-opening/editor-in-chief-publisher-shuchman/"
+  },
+  {
+    "title": "Program Associate",
+    "organization": "Private Foundation and Family Office Washington, DC (Hybrid In-person)",
+    "location": "Washington, DC (Hybrid In-person)",
+    "type": "N/A",
+    "date_posted": "January 6, 2026",
+    "link": "https://talentmarket.org/job-opening/program-associate-private-foundation/"
+  },
+  {
+    "title": "Program Manager",
+    "organization": "Mercatus Center at George Mason University Fairfax",
+    "location": "Fairfax, VA",
+    "type": "N/A",
+    "date_posted": "January 6, 2026",
+    "link": "https://talentmarket.org/job-opening/mercatus-program-manager/"
+  },
+  {
+    "title": "Chief Operating Officer",
+    "organization": "Steamboat Institute",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "January 6, 2026",
+    "link": "https://talentmarket.org/job-opening/chief-operating-officer-steamboat/"
+  },
+  {
+    "title": "Director of Donor Experiences",
+    "organization": "Competitive Enterprise Institute Washington, DC or",
+    "location": "Washington, DC or Virtual",
+    "type": "N/A",
+    "date_posted": "January 5, 2026",
+    "link": "https://talentmarket.org/job-opening/cei-director-donor-experiences/"
+  },
+  {
+    "title": "Director, Grants Program",
+    "organization": "Daniels Fund Denver, Colorado",
+    "location": "Denver, Colorado",
+    "type": "N/A",
+    "date_posted": "January 5, 2026",
+    "link": "https://talentmarket.org/job-opening/df-director/"
+  },
+  {
+    "title": "President",
+    "organization": "Institute for Free Speech Washington, D.C.",
+    "location": "Washington, D.C.",
+    "type": "N/A",
+    "date_posted": "January 5, 2026",
+    "link": "https://talentmarket.org/job-opening/president-ifs/"
+  },
+  {
+    "title": "Public Policy Reporter",
+    "organization": "John Locke Foundation Raleigh",
+    "location": "Raleigh, NC",
+    "type": "N/A",
+    "date_posted": "January 4, 2026",
+    "link": "https://talentmarket.org/job-opening/jlf-reporter/"
+  },
+  {
+    "title": "Administrative Director",
+    "organization": "Foundation for American Innovation",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "December 12, 2025",
+    "link": "https://talentmarket.org/job-opening/faiadministrative-director/"
+  },
+  {
+    "title": "Development Director",
+    "organization": "Foundation for American Innovation",
+    "location": "Washington, DC",
+    "type": "N/A",
+    "date_posted": "December 12, 2025",
+    "link": "https://talentmarket.org/job-opening/faidevelopmentdirector/"
+  },
+  {
+    "title": "State Policy Lead",
+    "organization": "American Conservation Coalition",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "December 11, 2025",
+    "link": "https://talentmarket.org/job-opening/acc-state-policy/"
+  },
+  {
+    "title": "Director of Development Programs",
+    "organization": "State Policy Network Washington, DC or",
+    "location": "Washington, DC or Virtual",
+    "type": "N/A",
+    "date_posted": "December 11, 2025",
+    "link": "https://talentmarket.org/job-opening/spn-ddp/"
+  },
+  {
+    "title": "Director of Development",
+    "organization": "Center for Independent Employees",
+    "location": "Virtual",
+    "type": "N/A",
+    "date_posted": "December 11, 2025",
+    "link": "https://talentmarket.org/job-opening/ciedevo/"
+  },
+  {
+    "title": "Policy Research and Communications Associate",
+    "organization": "Palmetto Promise Institute Columbia",
+    "location": "Columbia, SC",
+    "type": "N/A",
+    "date_posted": "December 10, 2025",
+    "link": "https://talentmarket.org/job-opening/palmetto-associate/"
   },
   {
     "title": "Major Gifts Officer",
@@ -16,28 +344,12 @@
     "link": "https://talentmarket.org/job-opening/heartland-mgo/"
   },
   {
-    "title": "Director of Development",
-    "organization": "American Institute for Economic Research",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "December 1, 2025",
-    "link": "https://talentmarket.org/job-opening/aier-devo/"
-  },
-  {
     "title": "Lead Investigative Researcher",
     "organization": "Legal Insurrection Foundation",
     "location": "Virtual",
     "type": "N/A",
     "date_posted": "November 18, 2025",
     "link": "https://talentmarket.org/job-opening/lif-investigative-researcher/"
-  },
-  {
-    "title": "Development Officer",
-    "organization": "Do No Harm",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "November 18, 2025",
-    "link": "https://talentmarket.org/job-opening/dnh-do/"
   },
   {
     "title": "Email Marketing Manager",
@@ -48,52 +360,12 @@
     "link": "https://talentmarket.org/job-opening/cato-email-marketing/"
   },
   {
-    "title": "Operations Manager",
-    "organization": "Ludlow Institute Lee, NH or",
-    "location": "Lee, NH or Virtual",
-    "type": "N/A",
-    "date_posted": "November 13, 2025",
-    "link": "https://talentmarket.org/job-opening/operations-manager-ludlow/"
-  },
-  {
-    "title": "Social Media Manager",
-    "organization": "Young Voices Washington, DC or",
-    "location": "Washington, DC or Virtual",
-    "type": "N/A",
-    "date_posted": "November 12, 2025",
-    "link": "https://talentmarket.org/job-opening/yv-smm/"
-  },
-  {
-    "title": "Director of Public Policy",
-    "organization": "Citizens\u2019 Council for Health Freedom Saint Paul, MN or",
-    "location": "Saint Paul, MN or Virtual",
-    "type": "N/A",
-    "date_posted": "November 11, 2025",
-    "link": "https://talentmarket.org/job-opening/cchf-policy/"
-  },
-  {
-    "title": "Coalitions Manager",
-    "organization": "Pacific Legal Foundation",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "November 7, 2025",
-    "link": "https://talentmarket.org/job-opening/plf-coalitions/"
-  },
-  {
     "title": "Program Associate",
     "organization": "Mercatus Center at George Mason University Fairfax",
     "location": "Fairfax, VA",
     "type": "N/A",
     "date_posted": "November 3, 2025",
     "link": "https://talentmarket.org/job-opening/program-associate-mercatus/"
-  },
-  {
-    "title": "Programs Associate",
-    "organization": "The Buckley Institute",
-    "location": "New Haven, CT",
-    "type": "N/A",
-    "date_posted": "October 30, 2025",
-    "link": "https://talentmarket.org/job-opening/buckley-programs-associate/"
   },
   {
     "title": "Controller",
@@ -104,46 +376,6 @@
     "link": "https://talentmarket.org/job-opening/controller-plf/"
   },
   {
-    "title": "Development Assistant",
-    "organization": "New Civil Liberties Alliance",
-    "location": "Arlington, VA",
-    "type": "N/A",
-    "date_posted": "October 24, 2025",
-    "link": "https://talentmarket.org/job-opening/ncla-development-assistant/"
-  },
-  {
-    "title": "Legal Talent Pipeline Manager",
-    "organization": "Pacific Legal Foundation",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "October 21, 2025",
-    "link": "https://talentmarket.org/job-opening/plf-legal-talent/"
-  },
-  {
-    "title": "Talent Development & Placement Officer",
-    "organization": "Students for Liberty",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "October 20, 2025",
-    "link": "https://talentmarket.org/job-opening/sfl-talent-placement-officer/"
-  },
-  {
-    "title": "Development Writer",
-    "organization": "American Enterprise Institute",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "October 20, 2025",
-    "link": "https://talentmarket.org/job-opening/aei-development-writer/"
-  },
-  {
-    "title": "Senior Editor",
-    "organization": "Daily Caller News Foundation",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "October 20, 2025",
-    "link": "https://talentmarket.org/job-opening/senior-editor/"
-  },
-  {
     "title": "Director of Donor Relations",
     "organization": "Pacific Legal Foundation",
     "location": "Virtual",
@@ -152,36 +384,12 @@
     "link": "https://talentmarket.org/job-opening/plfdonorrelations/"
   },
   {
-    "title": "Educational Freedom Attorney",
-    "organization": "Liberty Justice Center",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "October 17, 2025",
-    "link": "https://talentmarket.org/job-opening/ljc-ed-freedom-attorney/"
-  },
-  {
     "title": "National Field Director",
     "organization": "Young Americans for Liberty Foundation Austin",
     "location": "Austin, TX",
     "type": "N/A",
     "date_posted": "October 15, 2025",
     "link": "https://talentmarket.org/job-opening/yal-national-field-director/"
-  },
-  {
-    "title": "Research Fellow for Economics & Economic Freedom",
-    "organization": "American Institute for Economic Research",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "October 15, 2025",
-    "link": "https://talentmarket.org/job-opening/aierfellow/"
-  },
-  {
-    "title": "Attorney",
-    "organization": "Beacon Center of Tennessee: Nashville, TN or Virtual in the US",
-    "location": "Nashville, TN or Virtual in the US",
-    "type": "N/A",
-    "date_posted": "October 13, 2025",
-    "link": "https://talentmarket.org/job-opening/beacon-attorney/"
   },
   {
     "title": "Marketing Manager",
@@ -200,91 +408,11 @@
     "link": "https://talentmarket.org/job-opening/jmi-coaltions-manager/"
   },
   {
-    "title": "Director of Content Strategy",
-    "organization": "Philanthropy Roundtable",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "October 7, 2025",
-    "link": "https://talentmarket.org/job-opening/pr-content-strategy/"
-  },
-  {
-    "title": "Investor Relations Officer",
-    "organization": "Illinois Policy Institute",
-    "location": "Chicago, IL",
-    "type": "N/A",
-    "date_posted": "October 2, 2025",
-    "link": "https://talentmarket.org/job-opening/ipi-investor-relations/"
-  },
-  {
     "title": "Tech & Innovation Policy Analyst",
     "organization": "Libertas Institute Lehi, UT or Virtual in UT",
     "location": "Lehi, UT or Virtual in UT",
     "type": "N/A",
     "date_posted": "September 24, 2025",
     "link": "https://talentmarket.org/job-opening/libertas-tech-policy/"
-  },
-  {
-    "title": "Manager of Content",
-    "organization": "State Policy Network",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "September 23, 2025",
-    "link": "https://talentmarket.org/job-opening/spnmanagercontent/"
-  },
-  {
-    "title": "Director of Development",
-    "organization": "Grassroot Institute of Hawaii Honolulu, HI or",
-    "location": "Honolulu, HI or Virtual",
-    "type": "N/A",
-    "date_posted": "September 22, 2025",
-    "link": "https://talentmarket.org/job-opening/grassroot-hawaii-development/"
-  },
-  {
-    "title": "Video Editor/Producer",
-    "organization": "Ludlow Institute",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "September 22, 2025",
-    "link": "https://talentmarket.org/job-opening/ludlowproducer/"
-  },
-  {
-    "title": "Senior Advocacy Associate, Gulf Region",
-    "organization": "Foundation for Excellence in Education Virtual in Louisiana, Mississippi or Texas",
-    "location": "Virtual in Louisiana, Mississippi or Texas",
-    "type": "N/A",
-    "date_posted": "September 16, 2025",
-    "link": "https://talentmarket.org/job-opening/eieadvocacygulfregion/"
-  },
-  {
-    "title": "Vice President of Development",
-    "organization": "MediaPedia",
-    "location": "Virtual",
-    "type": "N/A",
-    "date_posted": "September 2, 2025",
-    "link": "https://talentmarket.org/job-opening/mediapedia-vp/"
-  },
-  {
-    "title": "Legal Assistant",
-    "organization": "The Center for Individual Rights",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "August 6, 2025",
-    "link": "https://talentmarket.org/job-opening/cir-legal-assistant/"
-  },
-  {
-    "title": "Major Gifts Officer",
-    "organization": "American Enterprise Institute",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "July 29, 2025",
-    "link": "https://talentmarket.org/job-opening/aei-mgo/"
-  },
-  {
-    "title": "Design Production Manager",
-    "organization": "Philanthropy Roundtable",
-    "location": "Washington, DC",
-    "type": "N/A",
-    "date_posted": "July 28, 2025",
-    "link": "https://talentmarket.org/job-opening/roundtable-dpm/"
   }
 ]
